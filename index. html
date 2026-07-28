@@ -1,1 +1,676 @@
-test
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Monopoli · Logo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --board-bg: #cde6d0;
+            --center-bg: #fafafa;
+            --p1-color: #e74c3c;
+            --p2-color: #3498db;
+            --accent: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e2a36;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+            padding: 16px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            background: #f5f7fa;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+            max-width: 1100px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* BOARD 5x5 */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            width: 520px;
+            height: 520px;
+            background-color: var(--board-bg);
+            border: 8px solid var(--accent);
+            border-radius: 12px;
+            position: relative;
+            flex-shrink: 0;
+            background-image: radial-gradient(circle at 10% 20%, rgba(255,255,240,0.3) 0%, transparent 30%);
+        }
+
+        .space {
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 11px;
+            text-align: center;
+            position: relative;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(1px);
+            overflow: hidden;
+            transition: 0.1s;
+        }
+
+        .space-header {
+            height: 26%;
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            flex-shrink: 0;
+        }
+
+        .space-name {
+            padding: 4px 2px;
+            font-weight: 700;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .space-price {
+            padding: 2px 0;
+            background: #f0f0f0;
+            font-size: 9px;
+            font-weight: 600;
+            border-top: 1px solid #ddd;
+        }
+
+        .center-area {
+            grid-column: 2 / 5;
+            grid-row: 2 / 5;
+            background: var(--center-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #b0b8c0;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
+        }
+
+        /* LOGO GAMBAR */
+        .logo-img {
+            width: 80px;
+            height: auto;
+            max-height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+            margin-bottom: 6px;
+            transition: 0.2s;
+            border-radius: 12px;
+            background: #fff;
+            padding: 4px;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.03);
+        }
+
+        .logo-text {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: 28px;
+            color: var(--accent);
+            letter-spacing: 1px;
+            margin: 4px 0 2px;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .logo-sub {
+            font-size: 13px;
+            color: #4a5a6a;
+            font-weight: 600;
+            background: rgba(44,62,80,0.08);
+            padding: 2px 14px;
+            border-radius: 30px;
+        }
+
+        #dice-display {
+            font-size: 38px;
+            margin: 6px 0 0;
+            background: #ecf0f1;
+            padding: 4px 20px;
+            border-radius: 40px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* PLAYER TOKENS */
+        .player-token {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2.5px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            position: absolute;
+            transition: all 0.25s ease;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .p1-token { background: var(--p1-color); }
+        .p2-token { background: var(--p2-color); }
+
+        /* OWNER MARKER */
+        .owner-marker {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.2);
+            transition: 0.15s;
+        }
+
+        /* CONTROLS */
+        .controls {
+            flex: 1;
+            min-width: 260px;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .player-card {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border-left: 6px solid transparent;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.2s;
+        }
+
+        .player-card.active {
+            background: #ffffff;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+            transform: scale(1.01);
+        }
+        .p1-card.active { border-left-color: var(--p1-color); }
+        .p2-card.active { border-left-color: var(--p2-color); }
+
+        .player-card h3 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .player-card p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .action-area {
+            background: #ecf0f1;
+            padding: 18px 14px;
+            border-radius: 16px;
+            text-align: center;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .action-area p {
+            margin: 0 0 10px;
+            font-weight: 500;
+            font-size: 15px;
+            color: #1e2a36;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            letter-spacing: 0.3px;
+            box-shadow: 0 3px 0 #1a2632;
+        }
+        button:hover { background: #3a4b5e; transform: translateY(-2px); box-shadow: 0 5px 0 #1a2632; }
+        button:disabled { background: #b0b8c0; box-shadow: none; transform: none; cursor: not-allowed; }
+
+        .btn-buy { background: #27ae60 !important; box-shadow: 0 3px 0 #1e8449 !important; }
+        .btn-buy:hover { background: #2ecc71 !important; }
+        .btn-pass { background: #e67e22 !important; box-shadow: 0 3px 0 #b85e0a !important; }
+        .btn-pass:hover { background: #f39c12 !important; }
+
+        #property-actions {
+            display: none;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #property-actions button {
+            min-width: 80px;
+        }
+
+        .log-box {
+            height: 130px;
+            overflow-y: auto;
+            background: #1e2a36;
+            color: #d0d9e0;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-family: 'Consolas', monospace;
+            line-height: 1.4;
+            border: 1px solid #3a4b5e;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.4);
+        }
+        .log-entry {
+            margin-bottom: 4px;
+            border-bottom: 1px solid #2e3c4a;
+            padding-bottom: 3px;
+            color: #c8d4dc;
+        }
+        .log-entry:first-child { color: #f1c40f; font-weight: 500; }
+
+        /* TYPE STYLES */
+        .type-prop { background: #fcfcfc; }
+        .type-chance { background: #fef7e0; }
+        .type-jail { background: #f8e1e5; }
+        .type-go { background: #dff0d8; }
+        .type-tax { background: #eaeef2; }
+        .type-parking { background: #e3f0f0; }
+        .type-gotojail { background: #f5d6d6; }
+
+        /* RESPONSIVE */
+        @media (max-width: 780px) {
+            .board { width: 380px; height: 380px; }
+            .logo-img { width: 60px; max-height: 60px; }
+            .logo-text { font-size: 22px; }
+        }
+        @media (max-width: 600px) {
+            .game-container { flex-direction: column; align-items: center; padding: 16px; }
+            .board { width: 100%; max-width: 400px; height: auto; aspect-ratio: 1/1; }
+            .controls { max-width: 100%; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <!-- BOARD -->
+    <div class="board" id="board">
+        <div class="center-area">
+            <!-- LOGO GAMBAR (ganti src dengan file gambar Anda) -->
+            <img class="logo-img" 
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232c3e50' rx='16'/%3E%3Ctext x='20' y='58' font-family='Impact' font-size='38' fill='%23f1c40f'%3EM%3C/text%3E%3Ctext x='52' y='58' font-family='Impact' font-size='38' fill='%23ecf0f1'%3E$%3C/text%3E%3Ccircle cx='72' cy='30' r='12' fill='%23e74c3c' opacity='0.7'/%3E%3C/svg%3E" 
+                 alt="Logo Monopoli" 
+                 title="Logo Mini Monopoli">
+            <div class="logo-text">MONOPOLI</div>
+            <div class="logo-sub">★ edisi mini ★</div>
+            <div id="dice-display">⚀</div>
+        </div>
+        <!-- Spaces akan dibuat oleh JS -->
+    </div>
+
+    <!-- PANEL KONTROL -->
+    <div class="controls">
+        <div class="player-card p1-card active" id="card-p1">
+            <h3>🔴 Pemain 1</h3>
+            <p>💰 Rp <span id="money-p1">1500</span></p>
+            <p>📍 <span id="pos-p1">GO</span></p>
+        </div>
+
+        <div class="player-card p2-card" id="card-p2">
+            <h3>🔵 Pemain 2</h3>
+            <p>💰 Rp <span id="money-p2">1500</span></p>
+            <p>📍 <span id="pos-p2">GO</span></p>
+        </div>
+
+        <div class="action-area" id="action-area">
+            <p id="message-text">Giliran Pemain 1 · lempar dadu!</p>
+            <button id="btn-roll" onclick="game.rollDice()">🎲 LEMPAR DADU</button>
+            <div id="property-actions">
+                <button class="btn-buy" onclick="game.buyProperty()">💰 BELI</button>
+                <button class="btn-pass" onclick="game.endTurn()">⏭️ LEWATI</button>
+            </div>
+        </div>
+
+        <div class="log-box" id="game-log">
+            <div class="log-entry">🎩 Selamat datang di Mini Monopoli!</div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * DATA PERMAINAN – 16 space pada perimeter 5x5
+ */
+const SPACES_DATA = [
+    { id: 0, name: "GO", type: "go", price: 0 },
+    { id: 1, name: "Jakarta", type: "prop", price: 100, rent: 20, color: "#e74c3c" },
+    { id: 2, name: "Kesempatan", type: "chance", price: 0 },
+    { id: 3, name: "Bandung", type: "prop", price: 120, rent: 25, color: "#e74c3c" },
+    { id: 4, name: "PENJARA", type: "jail", price: 0 },
+    { id: 5, name: "Surabaya", type: "prop", price: 150, rent: 30, color: "#3498db" },
+    { id: 6, name: "PLN", type: "tax", price: 0, tax: 100 },
+    { id: 7, name: "Medan", type: "prop", price: 180, rent: 35, color: "#3498db" },
+    { id: 8, name: "PARKIR BEBAS", type: "parking", price: 0 },
+    { id: 9, name: "Bali", type: "prop", price: 220, rent: 45, color: "#f1c40f" },
+    { id: 10, name: "Kesempatan", type: "chance", price: 0 },
+    { id: 11, name: "Makassar", type: "prop", price: 250, rent: 55, color: "#f1c40f" },
+    { id: 12, name: "MASUK PENJARA", type: "gotojail", price: 0 },
+    { id: 13, name: "Papua", type: "prop", price: 300, rent: 70, color: "#9b59b6" },
+    { id: 14, name: "PAJAK MEWAH", type: "tax", price: 0, tax: 200 },
+    { id: 15, name: "Kalimantan", type: "prop", price: 350, rent: 85, color: "#9b59b6" }
+];
+
+// Koordinat grid 5x5 (baris, kolom) — urutan searah jarum jam mulai dari pojok kanan bawah (GO)
+const GRID_COORDS = [
+    { r:5, c:5 }, { r:5, c:4 }, { r:5, c:3 }, { r:5, c:2 }, { r:5, c:1 },
+    { r:4, c:1 }, { r:3, c:1 }, { r:2, c:1 },
+    { r:1, c:1 }, { r:1, c:2 }, { r:1, c:3 }, { r:1, c:4 }, { r:1, c:5 },
+    { r:2, c:5 }, { r:3, c:5 }, { r:4, c:5 }
+];
+
+// pastikan tipe corner
+SPACES_DATA[0].type = "go";
+SPACES_DATA[4].type = "jail";
+SPACES_DATA[8].type = "parking";
+SPACES_DATA[12].type = "gotojail";
+
+class MonopolyGame {
+    constructor() {
+        this.players = [
+            { id: 1, name: "Pemain 1", money: 1500, pos: 0, color: "var(--p1-color)", jailed: false, jailTurns: 0 },
+            { id: 2, name: "Pemain 2", money: 1500, pos: 0, color: "var(--p2-color)", jailed: false, jailTurns: 0 }
+        ];
+        this.currentPlayerIdx = 0;
+        this.spaces = JSON.parse(JSON.stringify(SPACES_DATA));
+        this.spaces.forEach(s => s.owner = null);
+
+        this.initBoard();
+        this.updateUI();
+        this.log("🎲 Game dimulai! Pemain 1 jalan dulu.");
+    }
+
+    initBoard() {
+        const board = document.getElementById('board');
+        // Hapus space lama (kecuali center-area)
+        Array.from(board.children).forEach(c => {
+            if (!c.classList.contains('center-area')) board.removeChild(c);
+        });
+
+        this.spaces.forEach((space, idx) => {
+            const el = document.createElement('div');
+            el.className = `space type-${space.type}`;
+            el.id = `space-${idx}`;
+            el.style.gridRow = GRID_COORDS[idx].r;
+            el.style.gridColumn = GRID_COORDS[idx].c;
+
+            let headerHtml = '';
+            if (space.color) {
+                headerHtml = `<div class="space-header" style="background:${space.color}"></div>`;
+            } else if (space.type === 'go') {
+                headerHtml = `<div class="space-header" style="background:#27ae60"></div>`;
+            }
+
+            el.innerHTML = `
+                ${headerHtml}
+                <div class="space-name">${space.name}</div>
+                ${space.price > 0 ? `<div class="space-price">Rp ${space.price}</div>` : ''}
+                <div class="owner-marker" id="owner-marker-${idx}"></div>
+            `;
+            board.appendChild(el);
+        });
+
+        // Token pemain
+        this.p1Token = document.createElement('div');
+        this.p1Token.className = 'player-token p1-token';
+        this.p2Token = document.createElement('div');
+        this.p2Token.className = 'player-token p2-token';
+        board.appendChild(this.p1Token);
+        board.appendChild(this.p2Token);
+
+        this.moveTokenVisual(0, 0);
+        this.moveTokenVisual(1, 0);
+    }
+
+    moveTokenVisual(playerIdx, spaceIdx) {
+        const spaceEl = document.getElementById(`space-${spaceIdx}`);
+        if (!spaceEl) return;
+        const token = playerIdx === 0 ? this.p1Token : this.p2Token;
+        // Jika token sudah ada di dalam space, pindahkan
+        if (token.parentNode) token.parentNode.removeChild(token);
+        spaceEl.appendChild(token);
+        token.style.position = 'absolute';
+        token.style.bottom = playerIdx === 0 ? '4px' : 'auto';
+        token.style.top = playerIdx === 0 ? 'auto' : '4px';
+        token.style.left = playerIdx === 0 ? '4px' : 'auto';
+        token.style.right = playerIdx === 0 ? 'auto' : '4px';
+    }
+
+    rollDice() {
+        const btn = document.getElementById('btn-roll');
+        btn.disabled = true;
+        let count = 0;
+        const interval = setInterval(() => {
+            const temp = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('dice-display').innerText = this.getDiceEmoji(temp);
+            count++;
+            if (count > 12) {
+                clearInterval(interval);
+                const finalDice = Math.floor(Math.random() * 6) + 1;
+                document.getElementById('dice-display').innerText = this.getDiceEmoji(finalDice);
+                this.finalizeMove(finalDice);
+            }
+        }, 70);
+    }
+
+    getDiceEmoji(num) {
+        return ['⚀','⚁','⚂','⚃','⚄','⚅'][num-1] || '⚀';
+    }
+
+    finalizeMove(dice) {
+        const player = this.players[this.currentPlayerIdx];
+        this.log(`${player.name} melempar ${dice}`);
+
+        if (player.jailed) {
+            if (dice === 6) {
+                player.jailed = false;
+                player.jailTurns = 0;
+                this.log("🆓 Dadu 6! Bebas dari penjara.");
+            } else {
+                player.jailTurns++;
+                if (player.jailTurns >= 3) {
+                    player.money -= 100;
+                    player.jailed = false;
+                    player.jailTurns = 0;
+                    this.log("💰 3 giliran di penjara. Bayar denda Rp 100.");
+                } else {
+                    this.log(`⛓️ Masih di penjara (${player.jailTurns}/3). Giliran selesai.`);
+                    this.endTurn();
+                    return;
+                }
+            }
+        }
+
+        let newPos = (player.pos + dice) % 16;
+        if (newPos < player.pos && !player.jailed) {
+            player.money += 200;
+            this.log("🏁 Lewat GO! Dapat Rp 200.");
+        }
+        player.pos = newPos;
+        this.moveTokenVisual(this.currentPlayerIdx, newPos);
+        this.handleSpace(player, this.spaces[newPos]);
+        this.updateUI();
+    }
+
+    handleSpace(player, space) {
+        const msg = document.getElementById('message-text');
+        const btnRoll = document.getElementById('btn-roll');
+        const propActions = document.getElementById('property-actions');
+
+        btnRoll.style.display = 'none';
+        propActions.style.display = 'none';
+        msg.innerText = '';
+
+        switch(space.type) {
+            case 'prop':
+                if (space.owner === null) {
+                    if (player.money >= space.price) {
+                        msg.innerText = `🏢 ${space.name} · Rp ${space.price} · sewa Rp ${space.rent}`;
+                        propActions.style.display = 'flex';
+                    } else {
+                        msg.innerText = `🚫 ${space.name} · uang tidak cukup.`;
+                        setTimeout(() => this.endTurn(), 1200);
+                    }
+                } else if (space.owner !== player.id) {
+                    const owner = this.players.find(p => p.id === space.owner);
+                    msg.innerText = `🧾 Milik ${owner.name}! Bayar sewa Rp ${space.rent}`;
+                    this.transferMoney(player, owner, space.rent);
+                    setTimeout(() => this.endTurn(), 1300);
+                } else {
+                    msg.innerText = `🏠 Properti sendiri: ${space.name}`;
+                    setTimeout(() => this.endTurn(), 1000);
+                }
+                break;
+
+            case 'chance':
+                this.triggerChance(player);
+                break;
+
+            case 'tax':
+                msg.innerText = `💸 ${space.name} · bayar Rp ${space.tax}`;
+                player.money -= space.tax;
+                this.checkBankruptcy(player);
+                setTimeout(() => this.endTurn(), 1200);
+                break;
+
+            case 'gotojail':
+                msg.innerText = "⛓️ LANGSUNG MASUK PENJARA!";
+                player.pos = 4;
+                player.jailed = true;
+                this.moveTokenVisual(this.currentPlayerIdx, 4);
+                setTimeout(() => this.endTurn(), 1400);
+                break;
+
+            default:
+                msg.innerText = `📍 ${space.name} · aman.`;
+                setTimeout(() => this.endTurn(), 1000);
+        }
+    }
+
+    buyProperty() {
+        const player = this.players[this.currentPlayerIdx];
+        const space = this.spaces[player.pos];
+        if (player.money >= space.price && space.owner === null) {
+            player.money -= space.price;
+            space.owner = player.id;
+            const marker = document.getElementById(`owner-marker-${player.pos}`);
+            if (marker) marker.style.background = player.color;
+            this.log(`${player.name} membeli ${space.name}!`);
+            this.endTurn();
+        }
+    }
+
+    triggerChance(player) {
+        const effects = [
+            { txt: "🎉 Menang undian! +Rp 150", val: 150 },
+            { txt: "🏥 Rumah sakit · bayar Rp 100", val: -100 },
+            { txt: "🚀 Maju 3 langkah", move: 3 },
+            { txt: "🔙 Mundur 2 langkah", move: -2 },
+            { txt: "🍀 Tidak terjadi apa-apa.", val: 0 }
+        ];
+        const effect = effects[Math.floor(Math.random() * effects.length)];
+        this.log(`KARTU KESEMPATAN: ${effect.txt}`);
+
+        if (effect.val) {
+            player.money += effect.val;
+            this.checkBankruptcy(player);
+        }
+        if (effect.move) {
+            let newPos = (player.pos + effect.move + 16) % 16;
+            player.pos = newPos;
+            this.moveTokenVisual(this.currentPlayerIdx, newPos);
+            const newSpace = this.spaces[newPos];
+            if (newSpace.type === 'prop' && newSpace.owner && newSpace.owner !== player.id) {
+                const owner = this.players.find(p => p.id === newSpace.owner);
+                this.transferMoney(player, owner, newSpace.rent);
+            }
+        }
+        setTimeout(() => this.endTurn(), 1400);
+    }
+
+    transferMoney(from, to, amount) {
+        from.money -= amount;
+        to.money += amount;
+        this.checkBankruptcy(from);
+    }
+
+    checkBankruptcy(player) {
+        if (player.money < 0) {
+            alert(`💀 ${player.name} BANGKRUT! Game Over.`);
+            location.reload();
+        }
+    }
+
+    endTurn() {
+        this.currentPlayerIdx = (this.currentPlayerIdx + 1) % 2;
+        this.updateUI();
+        const next = this.players[this.currentPlayerIdx];
+        document.getElementById('message-text').innerText = `🎯 Giliran ${next.name} · lempar dadu!`;
+        document.getElementById('btn-roll').style.display = 'inline-block';
+        document.getElementById('btn-roll').disabled = false;
+        document.getElementById('property-actions').style.display = 'none';
+    }
+
+    updateUI() {
+        document.getElementById('money-p1').innerText = this.players[0].money;
+        document.getElementById('pos-p1').innerText = this.spaces[this.players[0].pos].name;
+        document.getElementById('money-p2').innerText = this.players[1].money;
+        document.getElementById('pos-p2').innerText = this.spaces[this.players[1].pos].name;
+
+        document.getElementById('card-p1').classList.toggle('active', this.currentPlayerIdx === 0);
+        document.getElementById('card-p2').classList.toggle('active', this.currentPlayerIdx === 1);
+    }
+
+    log(msg) {
+        const logBox = document.getElementById('game-log');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerText = `> ${msg}`;
+        logBox.prepend(entry);
+        if (logBox.children.length > 50) logBox.removeChild(logBox.lastChild);
+    }
+}
+
+// START
+const game = new MonopolyGame();
+</script>
+</body>
+</html>
