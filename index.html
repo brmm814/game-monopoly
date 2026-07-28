@@ -36,8 +36,85 @@
             min-height: 100vh;
             color: var(--text-main);
             padding: 20px;
+            position: relative;
         }
 
+        /* OVERLAY PILIHAN MODE */
+        .mode-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .mode-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        .mode-title {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mode-subtitle {
+            color: var(--text-sub);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .btn-mode {
+            background: rgba(51, 65, 85, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-mode:hover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
+        }
+
+        /* GAME CONTAINER */
         .game-container {
             display: flex;
             flex-wrap: wrap;
@@ -358,6 +435,23 @@
             box-shadow: none;
         }
 
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-sub);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-reset:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
         .log-box {
             height: 160px;
             overflow-y: auto;
@@ -401,6 +495,22 @@
 </head>
 <body>
 
+<!-- OVERLAY PILIHAN MODE PERMAINAN -->
+<div class="mode-overlay" id="mode-overlay">
+    <div class="mode-card">
+        <div class="mode-title">Pilih Mode Permainan</div>
+        <div class="mode-subtitle">Silakan pilih lawan bertanding Anda</div>
+        <div class="mode-buttons">
+            <button class="btn-mode" onclick="startGame('pvp')">
+                <span>👥</span> 1 vs 1 (Pemain vs Pemain)
+            </button>
+            <button class="btn-mode" onclick="startGame('ai')">
+                <span>🤖</span> 1 vs AI (Pemain vs Bot)
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="game-container">
     <!-- BOARD -->
     <div class="board" id="board">
@@ -418,7 +528,7 @@
             </div>
 
             <!-- 4 LOGO DI KIRI BAWAH CENTER AREA -->
-            <div class="bottom-left-logos" title="Sponsor & Miti Resmi">
+            <div class="bottom-left-logos" title="Sponsor & Mitra Resmi">
                 <img class="small-logo" src="images/logo2.jpg" alt="Logo 1" onerror="this.src='https://via.placeholder.com/28/38bdf8/ffffff?text=L1'">
                 <img class="small-logo" src="images/logo1.jpg" alt="Logo 2" onerror="this.src='https://via.placeholder.com/28/2ed573/ffffff?text=L2'">
                 <img class="small-logo" src="images/3.jpg" alt="Logo 3" onerror="this.src='https://via.placeholder.com/28/ff4757/ffffff?text=L3'">
@@ -431,13 +541,13 @@
     <div class="controls">
         <div class="players-wrapper">
             <div class="player-card p1 active" id="card-p1">
-                <h3>🔴 Pemain 1</h3>
+                <h3 id="name-p1">🔴 Pemain 1</h3>
                 <div class="money">Rp <span id="money-p1">1500</span></div>
                 <div class="location">📍 <span id="pos-p1">GO</span></div>
             </div>
 
             <div class="player-card p2" id="card-p2">
-                <h3>🔵 Pemain 2</h3>
+                <h3 id="name-p2">🔵 Pemain 2</h3>
                 <div class="money">Rp <span id="money-p2">1500</span></div>
                 <div class="location">📍 <span id="pos-p2">GO</span></div>
             </div>
@@ -450,6 +560,7 @@
                 <button class="btn btn-buy" onclick="game.buyProperty()">💰 BELI</button>
                 <button class="btn btn-pass" onclick="game.endTurn()">⏭️ LEWATI</button>
             </div>
+            <button class="btn-reset" onclick="location.reload()">🔄 Ganti Mode / Reset Game</button>
         </div>
 
         <div class="log-box" id="game-log">
@@ -486,18 +597,44 @@ const GRID_COORDS = [
 ];
 
 class MonopolyGame {
-    constructor() {
+    constructor(mode = 'pvp') {
+        this.mode = mode; // 'pvp' atau 'ai'
         this.players = [
-            { id: 1, name: "Pemain 1", money: 1500, pos: 0, color: "var(--p1-color)", jailed: false },
-            { id: 2, name: "Pemain 2", money: 1500, pos: 0, color: "var(--p2-color)", jailed: false }
+            { id: 1, name: "Pemain 1", money: 1500, pos: 0, color: "var(--p1-color)", jailed: false, isAI: false },
+            { id: 2, name: mode === 'ai' ? "Bot AI 🤖" : "Pemain 2", money: 1500, pos: 0, color: "var(--p2-color)", jailed: false, isAI: mode === 'ai' }
         ];
         this.currentPlayerIdx = 0;
         this.spaces = JSON.parse(JSON.stringify(SPACES_DATA));
         this.spaces.forEach(s => s.owner = null);
 
+        // Web Audio Context untuk Efek Suara Dadu
+        this.audioCtx = null;
+
         this.initBoard();
         this.updateTokens();
         this.updateUI();
+    }
+
+    // Fungsi Suara Lempar Dadu (Web Audio API)
+    playDiceSound() {
+        if (!this.audioCtx) {
+            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150 + Math.random() * 200, this.audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+
+        osc.start();
+        osc.stop(this.audioCtx.currentTime + 0.05);
     }
 
     initBoard() {
@@ -547,6 +684,9 @@ class MonopolyGame {
         const interval = setInterval(() => {
             const temp = Math.floor(Math.random() * 6) + 1;
             diceDisplay.innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][temp - 1];
+            
+            this.playDiceSound();
+            
             count++;
 
             if (count > 10) {
@@ -598,7 +738,14 @@ class MonopolyGame {
                 if (space.owner === null) {
                     if (player.money >= space.price) {
                         msg.innerText = `${space.name} dijual seharga Rp ${space.price}`;
-                        propActions.style.display = 'flex';
+                        if (player.isAI) {
+                            // Keputusan Logika AI: Beli jika uang cukup
+                            setTimeout(() => {
+                                this.buyProperty();
+                            }, 1000);
+                        } else {
+                            propActions.style.display = 'flex';
+                        }
                     } else {
                         msg.innerText = `${space.name} terlalu mahal untuk dibeli.`;
                         setTimeout(() => this.endTurn(), 1200);
@@ -695,12 +842,27 @@ class MonopolyGame {
         const nextPlayer = this.players[this.currentPlayerIdx];
         
         document.getElementById('message-text').innerText = `Giliran ${nextPlayer.name} · lempar dadu!`;
-        document.getElementById('btn-roll').style.display = 'block';
-        document.getElementById('btn-roll').disabled = false;
-        document.getElementById('property-actions').style.display = 'none';
+        
+        if (nextPlayer.isAI) {
+            document.getElementById('btn-roll').style.display = 'block';
+            document.getElementById('btn-roll').disabled = true;
+            document.getElementById('property-actions').style.display = 'none';
+            
+            // AI Melempar Dadu Secara Otomatis setelah jeda singkat
+            setTimeout(() => {
+                this.rollDice();
+            }, 1000);
+        } else {
+            document.getElementById('btn-roll').style.display = 'block';
+            document.getElementById('btn-roll').disabled = false;
+            document.getElementById('property-actions').style.display = 'none';
+        }
     }
 
     updateUI() {
+        document.getElementById('name-p1').innerText = `🔴 ${this.players[0].name}`;
+        document.getElementById('name-p2').innerText = `🔵 ${this.players[1].name}`;
+
         document.getElementById('money-p1').innerText = this.players[0].money;
         document.getElementById('pos-p1').innerText = this.spaces[this.players[0].pos].name;
         document.getElementById('money-p2').innerText = this.players[1].money;
@@ -719,7 +881,12 @@ class MonopolyGame {
     }
 }
 
-const game = new MonopolyGame();
+let game;
+
+function startGame(mode) {
+    document.getElementById('mode-overlay').style.display = 'none';
+    game = new MonopolyGame(mode);
+}
 </script>
 </body>
 </html>
