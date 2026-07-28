@@ -193,6 +193,7 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
+            position: relative;
         }
 
         .player-card {
@@ -306,6 +307,38 @@
         .type-parking { background: #e3f0f0; }
         .type-gotojail { background: #f5d6d6; }
 
+        /* LOGO KIRI BAWAH */
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            padding: 8px 14px 8px 10px;
+            border-radius: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-top: 4px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .brand-logo img {
+            height: 40px;
+            width: auto;
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 4px;
+            object-fit: contain;
+        }
+        .brand-logo span {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+        }
+        .brand-logo small {
+            font-weight: 400;
+            color: #7f8c8d;
+            font-size: 11px;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 780px) {
             .board { width: 380px; height: 380px; }
@@ -316,6 +349,7 @@
             .game-container { flex-direction: column; align-items: center; padding: 16px; }
             .board { width: 100%; max-width: 400px; height: auto; aspect-ratio: 1/1; }
             .controls { max-width: 100%; width: 100%; }
+            .brand-logo { justify-content: center; }
         }
     </style>
 </head>
@@ -325,7 +359,7 @@
     <!-- BOARD -->
     <div class="board" id="board">
         <div class="center-area">
-            <!-- LOGO GAMBAR (ganti src dengan file gambar Anda) -->
+            <!-- LOGO UTAMA DI TENGAH -->
             <img class="logo-img" 
                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232c3e50' rx='16'/%3E%3Ctext x='20' y='58' font-family='Impact' font-size='38' fill='%23f1c40f'%3EM%3C/text%3E%3Ctext x='52' y='58' font-family='Impact' font-size='38' fill='%23ecf0f1'%3E$%3C/text%3E%3Ccircle cx='72' cy='30' r='12' fill='%23e74c3c' opacity='0.7'/%3E%3C/svg%3E" 
                  alt="Logo Monopoli" 
@@ -362,6 +396,15 @@
 
         <div class="log-box" id="game-log">
             <div class="log-entry">🎩 Selamat datang di Mini Monopoli!</div>
+        </div>
+
+        <!-- LOGO KIRI BAWAH (di dalam controls) -->
+        <div class="brand-logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e67e22' rx='20'/%3E%3Ctext x='24' y='60' font-family='Arial Black' font-size='40' fill='%23fff'%3EM%3C/text%3E%3Ctext x='55' y='60' font-family='Arial Black' font-size='40' fill='%23f1c40f'%3E$%3C/text%3E%3C/svg%3E" 
+                 alt="Brand Logo" 
+                 title="Logo Brand">
+            <span>Monopoli<span style="font-weight:400; color:#7f8c8d; margin-left:4px;">ID</span></span>
+            <small>• v1.0</small>
         </div>
     </div>
 </div>
@@ -464,7 +507,6 @@ class MonopolyGame {
         const spaceEl = document.getElementById(`space-${spaceIdx}`);
         if (!spaceEl) return;
         const token = playerIdx === 0 ? this.p1Token : this.p2Token;
-        // Jika token sudah ada di dalam space, pindahkan
         if (token.parentNode) token.parentNode.removeChild(token);
         spaceEl.appendChild(token);
         token.style.position = 'absolute';
@@ -673,4 +715,4 @@ class MonopolyGame {
 const game = new MonopolyGame();
 </script>
 </body>
-    </html>
+</html>
