@@ -30,7 +30,7 @@
             position: absolute;
             width: 52px;
             height: 52px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
             border: 2px solid #cbd5e1;
             border-radius: 10px;
             display: flex;
@@ -45,60 +45,62 @@
             border-radius: 50%;
             box-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
-        /* Face 1 */
         .face-1 { transform: rotateY(0deg) translateZ(26px); }
-        .face-1 .dot { grid-area: center; }
-
-        /* Face 2 */
         .face-2 { transform: rotateY(180deg) translateZ(26px); }
-        /* Face 3 */
         .face-3 { transform: rotateY(-90deg) translateZ(26px); }
-        /* Face 4 */
         .face-4 { transform: rotateY(90deg) translateZ(26px); }
-        /* Face 5 */
         .face-5 { transform: rotateX(-90deg) translateZ(26px); }
-        /* Face 6 */
         .face-6 { transform: rotateX(90deg) translateZ(26px); }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6">
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-x-hidden">
+
+    <!-- Top Header Bar -->
+    <div class="absolute top-4 right-4 flex items-center gap-3 z-30">
+        <button onclick="toggleAudio()" id="sound-btn" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-amber-300 backdrop-blur-md transition shadow-lg flex items-center gap-1.5">
+            🔊 <span id="sound-txt">Suara On</span>
+        </button>
+    </div>
 
     <!-- SETUP SCREEN -->
-    <div id="setup-screen" class="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
-        <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-emerald-600 flex items-center justify-center shadow-lg text-3xl">
+    <div id="setup-screen" class="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-center relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-36 h-36 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-500 to-emerald-600 flex items-center justify-center shadow-xl text-4xl border border-white/20">
             🎲
         </div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide">MONOPOLI NUSANTARA</h1>
-        <p class="text-xs text-slate-400 mt-1 mb-6">Taipan Properti Indonesia dengan Mode Manusia vs AI Bot & Multiplayer</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-200 to-emerald-400 tracking-wide">MONOPOLI NUSANTARA</h1>
+        <p class="text-xs text-slate-400 mt-1 mb-6">Taipan Properti Indonesia dengan Mode Manusia vs BOT & Multiplayer 3D</p>
 
         <div class="space-y-3 text-left mb-6">
-            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Pilih Mode Permainan</label>
+            <label class="block text-xs font-extrabold text-amber-300 uppercase tracking-wider">Pilih Mode Permainan</label>
             <div id="mode-selector" class="space-y-2">
-                <label class="flex items-center justify-between p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/40 cursor-pointer transition">
+                <label class="flex items-center justify-between p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/40 cursor-pointer transition hover:border-emerald-400 shadow-md">
                     <div>
-                        <div class="font-bold text-sm text-white">1 Manusia vs 1 Bot AI</div>
-                        <div class="text-[11px] text-slate-400">Duel seru melawan BOT</div>
+                        <div class="font-bold text-sm text-white">1 Manusia vs 1 BOT</div>
+                        <div class="text-[11px] text-slate-400">Duel seru melawan kecerdasan BOT</div>
                     </div>
-                    <input type="radio" name="gameMode" value="pvp_ai" checked class="accent-emerald-500">
+                    <input type="radio" name="gameMode" value="pvp_ai" checked class="accent-emerald-500 w-4 h-4">
                 </label>
-                <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-700 bg-slate-800/50 cursor-pointer hover:border-slate-600 transition">
+                <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-700 bg-slate-800/50 cursor-pointer hover:border-slate-600 transition shadow-md">
                     <div>
                         <div class="font-bold text-sm text-white">2 Pemain Manusia (Lokal)</div>
                         <div class="text-[11px] text-slate-400">Main bareng teman bergantian di 1 perangkat</div>
                     </div>
-                    <input type="radio" name="gameMode" value="pvp_2p" class="accent-emerald-500">
+                    <input type="radio" name="gameMode" value="pvp_2p" class="accent-emerald-500 w-4 h-4">
                 </label>
-                <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-700 bg-slate-800/50 cursor-pointer hover:border-slate-600 transition">
+                <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-700 bg-slate-800/50 cursor-pointer hover:border-slate-600 transition shadow-md">
                     <div>
-                        <div class="font-bold text-sm text-white">1 Manusia vs 2 Bot AI</div>
-                        <div class="text-[11px] text-slate-400">Persaingan sengit melawan BOT</div>
+                        <div class="font-bold text-sm text-white">1 Manusia vs 2 BOT</div>
+                        <div class="text-[11px] text-slate-400">Persaingan sengit melawan dua BOT sekaligus</div>
                     </div>
-                    <input type="radio" name="gameMode" value="pvp_3ai" class="accent-emerald-500">
+                    <input type="radio" name="gameMode" value="pvp_3ai" class="accent-emerald-500 w-4 h-4">
                 </label>
             </div>
         </div>
 
-        <button onclick="startGame()" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl transition transform active:scale-95">
+        <button onclick="startGame()" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-sm shadow-xl shadow-emerald-900/40 transition transform active:scale-95 border border-emerald-400/30">
             Mulai Petualangan Monopoli 🚀
         </button>
     </div>
@@ -107,16 +109,16 @@
     <div id="game-screen" class="hidden w-full max-w-7xl flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6">
         
         <!-- BOARD (9x9 Perimeter) -->
-        <div class="relative aspect-square w-full max-w-[620px] bg-emerald-950/30 p-2 sm:p-3 rounded-3xl shadow-2xl border-4 border-amber-900/50 backdrop-blur-md">
+        <div class="relative aspect-square w-full max-w-[620px] bg-gradient-to-br from-emerald-950/60 to-slate-950/80 p-2 sm:p-3 rounded-3xl shadow-2xl border-4 border-amber-500/40 backdrop-blur-xl">
             <div id="board-grid" class="board-grid w-full h-full gap-1 sm:gap-1.5">
                 <!-- Center Area -->
-                <div class="col-start-2 col-end-9 row-start-2 row-end-9 bg-gradient-to-br from-emerald-900/90 to-slate-900 rounded-2xl shadow-inner border-2 border-amber-500/30 flex flex-col items-center justify-center p-4 text-center text-white relative overflow-hidden">
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15)_0,transparent_70%)] pointer-events-none"></div>
+                <div class="col-start-2 col-end-9 row-start-2 row-end-9 bg-gradient-to-br from-emerald-950/95 via-slate-900/95 to-slate-950 rounded-2xl shadow-inner border-2 border-amber-500/30 flex flex-col items-center justify-center p-4 text-center text-white relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.2)_0,transparent_75%)] pointer-events-none"></div>
                     <div class="relative z-10 flex flex-col items-center space-y-2">
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-widest uppercase">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-extrabold tracking-widest uppercase shadow">
                             <span>🇮🇩</span> Nusantara Olympus
                         </div>
-                        <h2 class="text-xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500">
+                        <h2 class="text-xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 drop-shadow">
                             MONOPOLI NUSANTARA
                         </h2>
                         <p class="text-xs text-emerald-200/80 max-w-xs font-medium">
@@ -126,17 +128,17 @@
 
                     <!-- 4 Logos di Bawah Kiri -->
                     <div class="absolute bottom-3 left-3 flex items-center gap-1.5 z-20">
-                        <img src="images/logo1.jpg" alt="Logo 1" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E1%3C/text%3E%3C/svg%3E'">
-                        <img src="images/logo2.jpg" alt="Logo 2" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E2%3C/text%3E%3C/svg%3E'">
-                        <img src="images/logo3.jpg" alt="Logo 3" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E3%3C/text%3E%3C/svg%3E'">
-                        <img src="images/logo4.jpg" alt="Logo 4" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E4%3C/text%3E%3C/svg%3E'">
+                        <img src="images/logo1.jpg" alt="Logo 1" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-lg bg-white/10 hover:scale-110 transition cursor-pointer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E1%3C/text%3E%3C/svg%3E'">
+                        <img src="images/logo2.jpg" alt="Logo 2" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-lg bg-white/10 hover:scale-110 transition cursor-pointer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E2%3C/text%3E%3C/svg%3E'">
+                        <img src="images/logo3.jpg" alt="Logo 3" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-lg bg-white/10 hover:scale-110 transition cursor-pointer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E3%3C/text%3E%3C/svg%3E'">
+                        <img src="images/logo4.jpg" alt="Logo 4" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-lg bg-white/10 hover:scale-110 transition cursor-pointer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E4%3C/text%3E%3C/svg%3E'">
                     </div>
 
                     <!-- 1 Logo di Bawah Kanan -->
                     <div class="absolute bottom-3 right-3 z-20">
-                        <div class="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/20 shadow-lg">
-                            <img src="images/br.png" alt="Main Logo" class="w-6 h-6 rounded-md object-cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23ffd700%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2210%22/%3E%3C/svg%3E'">
-                            <span class="text-[10px] font-extrabold text-amber-300 tracking-wider uppercase">SMK N 1 SANDEN</span>
+                        <div class="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-amber-500/40 shadow-xl">
+                            <img src="images/br.png" alt="Main Logo" class="w-6 h-6 rounded-md object-cover border border-amber-300" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23ffd700%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2210%22/%3E%3C/svg%3E'">
+                            <span class="text-[10px] font-black text-amber-300 tracking-wider uppercase">SMK N 1 SANDEN</span>
                         </div>
                     </div>
                 </div>
@@ -144,17 +146,17 @@
         </div>
 
         <!-- CONTROL PANEL -->
-        <div class="flex flex-col gap-4 w-full max-w-md lg:w-96 bg-white/95 backdrop-blur-md p-5 rounded-3xl shadow-2xl border border-slate-200 text-slate-800">
+        <div class="flex flex-col gap-4 w-full max-w-md lg:w-96 bg-white/95 backdrop-blur-xl p-5 rounded-3xl shadow-2xl border border-emerald-500/20 text-slate-800">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div class="flex items-center gap-2">
-                    <span class="text-xl">🎲</span>
+                    <span class="text-2xl">🎲</span>
                     <div>
-                        <h2 class="text-base font-black text-slate-800">MONOPOLI NUSANTARA</h2>
-                        <p class="text-xs text-slate-500 font-medium">Ronde <span id="round-num">1</span> • Jackpot: <span id="jackpot-val" class="font-bold text-emerald-600">Rp 1.500.000</span></p>
+                        <h2 class="text-base font-black text-slate-900">MONOPOLI NUSANTARA</h2>
+                        <p class="text-xs text-slate-500 font-medium">Ronde <span id="round-num">1</span> • Jackpot: <span id="jackpot-val" class="font-extrabold text-emerald-600">Rp 1.500.000</span></p>
                     </div>
                 </div>
-                <button onclick="resetGame()" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition text-xs font-bold">
-                    🔄 Reset
+                <button onclick="resetMenu()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition text-xs font-bold border border-rose-200 shadow-sm flex items-center gap-1">
+                    🔄 Keluar
                 </button>
             </div>
 
@@ -164,14 +166,14 @@
             </div>
 
             <!-- Dice & Action Box -->
-            <div class="bg-gradient-to-br from-slate-50 to-emerald-50/50 p-4 rounded-2xl border border-emerald-100 flex flex-col items-center text-center">
-                <div class="text-xs font-bold text-slate-600 mb-2">
-                    Giliran: <span id="current-player-name" class="text-emerald-700 font-extrabold">-</span>
+            <div class="bg-gradient-to-br from-slate-50 to-emerald-50/60 p-4 rounded-2xl border border-emerald-200/60 flex flex-col items-center text-center shadow-inner">
+                <div class="text-xs font-extrabold text-slate-700 mb-2">
+                    Giliran: <span id="current-player-name" class="text-emerald-700 font-black text-sm">-</span>
                 </div>
 
-                <div class="flex items-center justify-center gap-4 my-2 bg-white px-6 py-3 rounded-2xl shadow-inner border border-slate-200">
+                <div class="flex items-center justify-center gap-5 my-3 bg-white px-8 py-3.5 rounded-2xl shadow-md border border-slate-200">
                     <div class="dice-scene">
-                        <div id="dice-cube-1" class="dice-cube" style="transform: rotateX(0deg) rotateY(0deg);">
+                        <div id="dice-cube-1" class="dice-cube">
                             <div class="dice-face face-1"><div class="dot"></div></div>
                             <div class="dice-face face-2"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
                             <div class="dice-face face-3"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
@@ -180,9 +182,9 @@
                             <div class="dice-face face-6"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:10px;right:10px;"></div><div class="dot" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);"></div><div class="dot" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);"></div><div class="dot" style="position:absolute;bottom:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
                         </div>
                     </div>
-                    <span class="text-xl font-bold text-slate-300">+</span>
+                    <span class="text-2xl font-black text-slate-300">+</span>
                     <div class="dice-scene">
-                        <div id="dice-cube-2" class="dice-cube" style="transform: rotateX(0deg) rotateY(0deg);">
+                        <div id="dice-cube-2" class="dice-cube">
                             <div class="dice-face face-1"><div class="dot"></div></div>
                             <div class="dice-face face-2"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
                             <div class="dice-face face-3"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
@@ -198,25 +200,51 @@
                 </div>
 
                 <div id="action-buttons" class="w-full flex gap-2 mt-2">
-                    <button id="btn-roll" onclick="rollDice()" class="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-sm shadow-md transition">
+                    <button id="btn-roll" onclick="rollDice()" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/30 transition transform active:scale-95">
                         🎲 Lempar Dadu
                     </button>
                 </div>
             </div>
 
             <!-- Game Logs -->
-            <div id="game-logs" class="bg-slate-900 text-slate-300 p-3 rounded-2xl h-32 overflow-y-auto font-mono text-[11px] space-y-1 shadow-inner border border-slate-800">
-                <div class="text-emerald-400">> Permainan siap dimulai.</div>
+            <div id="game-logs" class="bg-slate-900 text-emerald-300 p-3 rounded-2xl h-32 overflow-y-auto font-mono text-[11px] space-y-1.5 shadow-inner border border-slate-800">
+                <div class="text-amber-400">> Permainan siap dimulai. Pilih mode & nikmati pertarungan Taipan!</div>
             </div>
         </div>
 
     </div>
 
+    <!-- PROPERTY MODAL -->
+    <div id="property-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-slate-800 relative border border-slate-200">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold">✕</button>
+            <div id="modal-color-bar" class="w-full h-4 rounded-xl mb-3 shadow-inner"></div>
+            <h3 id="modal-title" class="text-lg font-black text-slate-900">Nama Properti</h3>
+            <div class="text-xs text-slate-500 font-medium mb-4" id="modal-type">Jenis Properti</div>
+            
+            <div class="space-y-2.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs font-medium">
+                <div class="flex justify-between"><span>Harga Beli:</span> <span id="modal-price" class="font-bold text-slate-900">Rp 0</span></div>
+                <div class="flex justify-between"><span>Biaya Sewa:</span> <span id="modal-rent" class="font-bold text-emerald-600">Rp 0</span></div>
+                <div class="flex justify-between"><span>Pemilik:</span> <span id="modal-owner" class="font-bold text-indigo-600">-</span></div>
+            </div>
+
+            <button onclick="closeModal()" class="w-full mt-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs">Tutup</button>
+        </div>
+    </div>
+
     <script>
         // Web Audio Sound Effects Synthesizer
+        let soundEnabled = true;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById("sound-txt").innerText = soundEnabled ? "Suara On" : "Suara Off";
+            document.getElementById("sound-btn").style.opacity = soundEnabled ? "1" : "0.5";
+        }
+
         function playTone(freq, type, duration, gainVal = 0.1) {
+            if (!soundEnabled) return;
             try {
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -236,22 +264,22 @@
 
         const soundManager = {
             roll: () => {
-                playTone(300, 'triangle', 0.1, 0.15);
-                setTimeout(() => playTone(450, 'triangle', 0.1, 0.15), 80);
+                playTone(320, 'triangle', 0.1, 0.15);
+                setTimeout(() => playTone(480, 'triangle', 0.1, 0.15), 90);
             },
             buy: () => {
                 playTone(523.25, 'sine', 0.1, 0.2);
                 setTimeout(() => playTone(659.25, 'sine', 0.1, 0.2), 100);
-                setTimeout(() => playTone(783.99, 'sine', 0.2, 0.2), 200);
+                setTimeout(() => playTone(783.99, 'sine', 0.25, 0.25), 200);
             },
             pay: () => {
-                playTone(300, 'sawtooth', 0.15, 0.15);
-                setTimeout(() => playTone(200, 'sawtooth', 0.2, 0.15), 120);
+                playTone(280, 'sawtooth', 0.15, 0.15);
+                setTimeout(() => playTone(180, 'sawtooth', 0.25, 0.15), 130);
             },
             start: () => {
                 playTone(440, 'sine', 0.1, 0.2);
                 setTimeout(() => playTone(554.37, 'sine', 0.1, 0.2), 120);
-                setTimeout(() => playTone(659.25, 'sine', 0.3, 0.25), 240);
+                setTimeout(() => playTone(659.25, 'sine', 0.35, 0.25), 240);
             }
         };
 
@@ -330,8 +358,7 @@
                 position: 0,
                 color: colors[i],
                 token: tokens[i],
-                isAi: c.isAi,
-                isJailed: false
+                isAi: c.isAi
             }));
 
             SPACES.forEach(s => { s.owner = null; });
@@ -348,7 +375,6 @@
 
         function renderBoard() {
             const grid = document.getElementById("board-grid");
-            // Keep center area element
             const centerArea = grid.firstElementChild;
             grid.innerHTML = "";
             grid.appendChild(centerArea);
@@ -358,9 +384,10 @@
                 const el = document.createElement("div");
                 const owner = space.owner ? gameState.players.find(p => p.id === space.owner) : null;
                 
-                el.className = `rounded-xl p-1 flex flex-col justify-between items-center text-center relative overflow-hidden transition-all duration-300 ${space.color ? 'bg-gradient-to-b from-white to-slate-100' : 'bg-gradient-to-b from-slate-100 to-slate-200'} shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] border border-slate-300/80 hover:translate-y-[-2px]`;
+                el.className = `rounded-xl p-1 flex flex-col justify-between items-center text-center relative overflow-hidden transition-all duration-300 ${space.color ? 'bg-gradient-to-b from-white to-slate-100' : 'bg-gradient-to-b from-slate-100 to-slate-200'} shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] border border-slate-300/80 hover:translate-y-[-2px] cursor-pointer`;
                 el.style.gridRow = pos.r;
                 el.style.gridColumn = pos.c;
+                el.onclick = () => showPropertyModal(space);
 
                 let headerHtml = "";
                 if (space.color) {
@@ -385,6 +412,23 @@
             });
         }
 
+        function showPropertyModal(space) {
+            document.getElementById("modal-title").innerText = space.name;
+            document.getElementById("modal-type").innerText = space.type.toUpperCase();
+            document.getElementById("modal-color-bar").style.background = space.color || "#0f172a";
+            document.getElementById("modal-price").innerText = space.price ? "Rp " + space.price.toLocaleString("id-ID") : "Tidak Diperjualbelikan";
+            document.getElementById("modal-rent").innerText = space.rent ? "Rp " + space.rent.toLocaleString("id-ID") : "-";
+            
+            const owner = space.owner ? gameState.players.find(p => p.id === space.owner) : null;
+            document.getElementById("modal-owner").innerText = owner ? owner.name : "Belum ada pemilik";
+
+            document.getElementById("property-modal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("property-modal").classList.add("hidden");
+        }
+
         function updateUI() {
             document.getElementById("round-num").innerText = gameState.round;
             document.getElementById("jackpot-val").innerText = "Rp " + gameState.jackpot.toLocaleString("id-ID");
@@ -394,10 +438,10 @@
             gameState.players.forEach((p, idx) => {
                 const isActive = idx === gameState.currentPlayerIdx;
                 playerList.innerHTML += `
-                    <div class="p-2.5 rounded-xl border ${isActive ? 'bg-slate-900 text-white border-amber-400' : 'bg-slate-50 text-slate-700 border-slate-200'} flex flex-col justify-between">
+                    <div class="p-2.5 rounded-xl border ${isActive ? 'bg-slate-900 text-white border-amber-400 shadow-lg scale-[1.02]' : 'bg-slate-50 text-slate-700 border-slate-200'} flex flex-col justify-between transition-all">
                         <div class="flex items-center justify-between text-xs font-bold">
                             <span>${p.token} ${p.name}</span>
-                            ${p.isAi ? '<span class="text-[9px] px-1 rounded bg-indigo-500/30 text-indigo-200">BOT</span>' : ''}
+                            ${p.isAi ? '<span class="text-[9px] px-1 rounded bg-indigo-500/30 text-indigo-200 font-extrabold">BOT</span>' : ''}
                         </div>
                         <div class="text-xs font-black text-emerald-400 mt-1">Rp ${p.money.toLocaleString("id-ID")}</div>
                     </div>
@@ -407,7 +451,6 @@
             const curr = gameState.players[gameState.currentPlayerIdx];
             document.getElementById("current-player-name").innerText = `${curr.token} ${curr.name}`;
 
-            // Update board tokens
             SPACES.forEach((_, idx) => {
                 const tokenContainer = document.getElementById(`space-tokens-${idx}`);
                 if (tokenContainer) tokenContainer.innerHTML = "";
@@ -417,7 +460,7 @@
                 const tokenContainer = document.getElementById(`space-tokens-${p.position}`);
                 if (tokenContainer) {
                     const span = document.createElement("span");
-                    span.className = "w-4 h-4 rounded-full text-[10px] font-bold text-white flex items-center justify-center shadow";
+                    span.className = "w-4 h-4 rounded-full text-[10px] font-bold text-white flex items-center justify-center shadow-md animate-bounce";
                     span.style.background = p.color;
                     span.innerText = p.token;
                     tokenContainer.appendChild(span);
@@ -426,8 +469,8 @@
         }
 
         function getDiceRotation(num) {
-            const rx = (num === 5 ? 90 : num === 6 ? -90 : 0) + 360 * 3;
-            const ry = (num === 1 ? 0 : num === 2 ? 180 : num === 3 ? -90 : num === 4 ? 90 : 0) + 360 * 3;
+            const rx = (num === 5 ? 90 : num === 6 ? -90 : 0) + 360 * 4;
+            const ry = (num === 1 ? 0 : num === 2 ? 180 : num === 3 ? -90 : num === 4 ? 90 : 0) + 360 * 4;
             return `rotateX(${rx}deg) rotateY(${ry}deg)`;
         }
 
@@ -454,6 +497,7 @@
                     addLog(`🏁 ${player.name} melewati GO! Ambil gaji Rp 2.000.000.`);
                 }
                 player.position = newPos;
+                renderBoard();
                 updateUI();
                 handleLanding(player, SPACES[newPos]);
             }, 1000);
@@ -470,7 +514,7 @@
                     if (player.money >= space.price && !player.isAi) {
                         actionMsg.innerText = `${space.name} seharga Rp ${space.price.toLocaleString("id-ID")}. Beli?`;
                         actionBtns.innerHTML = `
-                            <button onclick="buyProperty(${space.id})" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">Beli Aset</button>
+                            <button onclick="buyProperty(${space.id})" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow">Beli Aset</button>
                             <button onclick="endTurn()" class="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs">Lewati</button>
                         `;
                         return;
@@ -479,6 +523,7 @@
                         space.owner = player.id;
                         soundManager.buy();
                         addLog(`🤖 ${player.name} membeli ${space.name}!`);
+                        renderBoard();
                     }
                 } else if (space.owner !== player.id) {
                     const owner = gameState.players.find(p => p.id === space.owner);
@@ -511,6 +556,7 @@
                 space.owner = player.id;
                 soundManager.buy();
                 addLog(`🎉 ${player.name} sukses membeli ${space.name}!`);
+                renderBoard();
                 updateUI();
                 endTurn();
             }
@@ -520,7 +566,7 @@
             const actionMsg = document.getElementById("action-message");
             const actionBtns = document.getElementById("action-buttons");
             actionMsg.innerText = "Giliran berikutnya...";
-            actionBtns.innerHTML = `<button onclick="rollDice()" class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm">🎲 Lempar Dadu</button>`;
+            actionBtns.innerHTML = `<button onclick="rollDice()" class="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-md">🎲 Lempar Dadu</button>`;
 
             gameState.currentPlayerIdx = (gameState.currentPlayerIdx + 1) % gameState.players.length;
             if (gameState.currentPlayerIdx === 0) gameState.round++;
@@ -545,7 +591,7 @@
             logs.prepend(div);
         }
 
-        function resetGame() {
+        function resetMenu() {
             document.getElementById("game-screen").classList.add("hidden");
             document.getElementById("setup-screen").classList.remove("hidden");
         }
