@@ -55,8 +55,25 @@
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-x-hidden">
 
+    <!-- LANDSCAPE WARNING MODAL -->
+    <div id="landscape-warning" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-amber-500/50 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center relative z-20">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-600 flex items-center justify-center text-3xl shadow-xl animate-pulse">
+                📱
+            </div>
+            <h3 class="text-lg font-black text-white mb-2">Mohon Putar Perangkat (Potret)</h3>
+            <p class="text-xs text-slate-300 mb-4 font-medium">Monopoli Nusantara dirancang optimal dalam orientasi potret (vertical) agar papan & kontrol permainan tampil sempurna.</p>
+            <button onclick="dismissLandscapeWarning()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs border border-slate-700">
+                Tetap Lanjutkan Saja
+            </button>
+        </div>
+    </div>
+
     <!-- Top Header Bar -->
-    <div class="absolute top-4 right-4 flex items-center gap-3 z-30">
+    <div class="absolute top-4 right-4 flex items-center gap-2 sm:gap-3 z-30">
+        <div id="orientation-badge" class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-extrabold text-amber-300 backdrop-blur-md transition shadow-lg flex items-center gap-1.5">
+            📱 Potret
+        </div>
         <button onclick="toggleAudio()" id="sound-btn" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-amber-300 backdrop-blur-md transition shadow-lg flex items-center gap-1.5">
             🔊 <span id="sound-txt">Suara On</span>
         </button>
@@ -207,9 +224,13 @@
             </div>
 
             <!-- Game Logs -->
-            <div id="game-logs" class="bg-slate-900 text-emerald-300 p-3 rounded-2xl h-32 overflow-y-auto font-mono text-[11px] space-y-1.5 shadow-inner border border-slate-800">
+            <div id="game-logs" class="bg-slate-900 text-emerald-300 p-3 rounded-2xl h-28 overflow-y-auto font-mono text-[11px] space-y-1.5 shadow-inner border border-slate-800">
                 <div class="text-amber-400">> Permainan siap dimulai. Pilih mode & nikmati pertarungan Taipan!</div>
             </div>
+
+            <button onclick="declareWinnerManually()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 font-black text-xs shadow-md transition">
+                🏆 Selesaikan & Umumkan Taipan Terbaik
+            </button>
         </div>
 
     </div>
@@ -229,6 +250,35 @@
             </div>
 
             <button onclick="closeModal()" class="w-full mt-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs">Tutup</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER / WINNER MODAL WITH 3D PARTICLES -->
+    <div id="game-over-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+        <div class="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-amber-500/50 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center relative z-20 overflow-hidden">
+            <div class="absolute -top-16 -right-16 w-40 h-40 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-600 flex items-center justify-center shadow-2xl text-4xl border border-amber-300 animate-bounce">
+                🏆
+            </div>
+            <div class="text-xs font-extrabold text-amber-400 uppercase tracking-widest mb-1">Pemenang Taipan Nusantara</div>
+            <h2 id="winner-title" class="text-2xl sm:text-3xl font-black text-white mb-2">Pemain 1</h2>
+            <p id="winner-desc" class="text-xs text-slate-300 mb-6 font-medium">Berhasil menguasai aset terbanyak dan menjadi Taipan terkaya di Indonesia!</p>
+
+            <div id="winner-stats" class="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 space-y-2 text-xs text-left">
+                <div class="flex justify-between text-slate-300"><span>Total Kekayaan:</span> <span id="winner-money" class="font-bold text-emerald-400">Rp 0</span></div>
+                <div class="flex justify-between text-slate-300"><span>Aset Dikuasai:</span> <span id="winner-properties" class="font-bold text-amber-300">0 Kota</span></div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="resetMenu()" class="flex-1 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition">
+                    Menu Utama
+                </button>
+                <button onclick="restartSameGame()" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-lg transition">
+                    Main Lagi 🎮
+                </button>
+            </div>
         </div>
     </div>
 
@@ -563,6 +613,23 @@
         }
 
         function endTurn() {
+            // Check bankruptcy or round finish
+            let bankruptPlayer = gameState.players.find(p => p.money < 0);
+            if (bankruptPlayer) {
+                addLog(`🚨 ${bankruptPlayer.name} mengalami kebangkrutan! Permainan selesai.`);
+                // Winner is richest other player
+                let otherPlayers = gameState.players.filter(p => p.id !== bankruptPlayer.id);
+                let richest = otherPlayers.reduce((prev, curr) => curr.money > prev.money ? curr : prev, otherPlayers[0]);
+                triggerGameOver(richest);
+                return;
+            }
+
+            if (gameState.round > 12) {
+                addLog(`🏁 Batas 12 ronde tercapai! Menentukan Taipan Terbaik.`);
+                declareWinnerManually();
+                return;
+            }
+
             const actionMsg = document.getElementById("action-message");
             const actionBtns = document.getElementById("action-buttons");
             actionMsg.innerText = "Giliran berikutnya...";
@@ -593,8 +660,141 @@
 
         function resetMenu() {
             document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("game-over-modal").classList.add("hidden");
             document.getElementById("setup-screen").classList.remove("hidden");
         }
+
+        function restartSameGame() {
+            document.getElementById("game-over-modal").classList.add("hidden");
+            startGame();
+        }
+
+        function declareWinnerManually() {
+            // Find player with highest money + property value
+            let bestPlayer = gameState.players[0];
+            let maxWealth = -1;
+
+            gameState.players.forEach(p => {
+                let propVal = 0;
+                SPACES.forEach(s => {
+                    if (s.owner === p.id && s.price) propVal += s.price;
+                });
+                let total = p.money + propVal;
+                if (total > maxWealth) {
+                    maxWealth = total;
+                    bestPlayer = p;
+                }
+            });
+
+            triggerGameOver(bestPlayer);
+        }
+
+        function triggerGameOver(winner) {
+            soundManager.buy();
+            document.getElementById("winner-title").innerText = `${winner.token} ${winner.name}`;
+            let propCount = SPACES.filter(s => s.owner === winner.id).length;
+            let propVal = 0;
+            SPACES.forEach(s => {
+                if (s.owner === winner.id && s.price) propVal += s.price;
+            });
+            document.getElementById("winner-money").innerText = "Rp " + (winner.money + propVal).toLocaleString("id-ID");
+            document.getElementById("winner-properties").innerText = `${propCount} Kota`;
+
+            document.getElementById("game-over-modal").classList.remove("hidden");
+            startConfetti3D();
+        }
+
+        // 3D Confetti Particle Engine
+        let confettiAnimationId = null;
+        function startConfetti3D() {
+            const canvas = document.getElementById("confetti-canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#ec4899', '#8b5cf6'];
+
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 10 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedX: (Math.random() - 0.5) * 4,
+                    speedY: Math.random() * 4 + 3,
+                    rotationX: Math.random() * 360,
+                    rotationY: Math.random() * 360,
+                    rotSpeedX: Math.random() * 10 - 5,
+                    rotSpeedY: Math.random() * 10 - 5
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.rotationX += p.rotSpeedX;
+                    p.rotationY += p.rotSpeedY;
+
+                    if (p.y > canvas.height) {
+                        p.y = -20;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotationX * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                    ctx.restore();
+                });
+
+                confettiAnimationId = requestAnimationFrame(animate);
+            }
+
+            if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
+            animate();
+        }
+
+        // Device Orientation & Layout Adaptation
+        let landscapeDismissed = false;
+        function checkOrientation() {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            const badge = document.getElementById("orientation-badge");
+            const warningModal = document.getElementById("landscape-warning");
+
+            if (badge) {
+                if (isLandscape) {
+                    badge.innerHTML = "💻 Lanskap (Layar Lebar)";
+                    badge.className = "px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-xs font-extrabold text-emerald-300 backdrop-blur-md transition shadow-lg flex items-center gap-1.5";
+                    if (warningModal && !landscapeDismissed) {
+                        warningModal.classList.remove("hidden");
+                    }
+                } else {
+                    badge.innerHTML = "📱 Potret (Ponsel)";
+                    badge.className = "px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-extrabold text-amber-300 backdrop-blur-md transition shadow-lg flex items-center gap-1.5";
+                    if (warningModal) {
+                        warningModal.classList.add("hidden");
+                    }
+                }
+            }
+        }
+
+        function dismissLandscapeWarning() {
+            landscapeDismissed = true;
+            const warningModal = document.getElementById("landscape-warning");
+            if (warningModal) warningModal.classList.add("hidden");
+        }
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        window.addEventListener('DOMContentLoaded', () => {
+            checkOrientation();
+        });
+
     </script>
 </body>
 </html>
