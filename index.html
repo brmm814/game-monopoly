@@ -3,890 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Monopoli · NextGen Edition</title>
+    <title>Monopoli Nusantara · AI Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(9, minmax(0, 1fr));
+            grid-template-rows: repeat(9, minmax(0, 1fr));
         }
-
-        :root {
-            --bg-main: #0f172a;
-            --panel-bg: rgba(30, 41, 59, 0.7);
-            --board-bg: #1e293b;
-            --p1-color: #ff4757;
-            --p1-glow: rgba(255, 71, 87, 0.4);
-            --p2-color: #2ed573;
-            --p2-glow: rgba(46, 213, 115, 0.4);
-            --accent: #38bdf8;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
+        /* 3D Dice Styles */
+        .dice-scene {
+            width: 52px;
+            height: 52px;
+            perspective: 600px;
         }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-main);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(255, 71, 87, 0.12) 0px, transparent 50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: var(--text-main);
-            padding: 20px;
-            position: relative;
-        }
-
-        /* OVERLAY PILIHAN MODE */
-        .mode-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .dice-cube {
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .mode-card {
-            background: var(--panel-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 28px;
-            padding: 40px;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        }
-
-        .mode-title {
-            font-size: 28px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .mode-subtitle {
-            color: var(--text-sub);
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        .mode-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .btn-mode {
-            background: rgba(51, 65, 85, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 16px 20px;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .btn-mode:hover {
-            border-color: var(--accent);
-            background: rgba(56, 189, 248, 0.15);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
-        }
-
-        /* GAME CONTAINER */
-        .game-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 32px;
-            background: var(--panel-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 32px;
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            max-width: 1150px;
-            width: 100%;
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        /* BOARD GRID 5x5 */
-        .board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            width: 540px;
-            height: 540px;
-            background-color: var(--board-bg);
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
             position: relative;
-            flex-shrink: 0;
-            padding: 8px;
-            gap: 6px;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.15, 0.85, 0.35, 1.2);
         }
-
-        .space {
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            font-size: 11px;
-            text-align: center;
-            position: relative;
-            background: rgba(51, 65, 85, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .space:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.2);
-            z-index: 5;
-        }
-
-        .space-header {
-            height: 14px;
-            width: 100%;
-            flex-shrink: 0;
-        }
-
-        .space-name {
-            padding: 4px 2px;
-            font-weight: 600;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            color: #e2e8f0;
-            line-height: 1.2;
-        }
-
-        .space-price {
-            padding: 3px 0;
-            background: rgba(15, 23, 42, 0.6);
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        /* CENTER AREA */
-        .center-area {
-            grid-column: 2 / 5;
-            grid-row: 2 / 5;
-            background: rgba(15, 23, 42, 0.85);
-            border: 2px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            text-align: center;
-            position: relative;
-        }
-
-        .center-top {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo-img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            margin-bottom: 6px;
-            transition: transform 0.3s ease;
-        }
-
-        .logo-img:hover {
-            transform: scale(1.05) rotate(2deg);
-        }
-
-        .logo-text {
-            font-family: 'Arial Black', sans-serif;
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-        }
-
-        .logo-sub {
-            font-size: 10px;
-            color: var(--text-sub);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        #dice-display {
-            font-size: 36px;
-            margin-top: 4px;
-            line-height: 1;
-            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
-        }
-
-        /* CONTAINER 4 LOGO KIRI BAWAH */
-        .bottom-left-logos {
+        .dice-face {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            background: rgba(30, 41, 59, 0.6);
-            padding: 6px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.1);
         }
-
-        .small-logo {
-            width: 28px;
-            height: 28px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .dot {
+            width: 9px;
+            height: 9px;
             background: #0f172a;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .small-logo:hover {
-            transform: scale(1.15);
-            border-color: var(--accent);
-        }
-
-        /* TOKENS */
-        .tokens-container {
-            position: absolute;
-            bottom: 4px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            z-index: 10;
-        }
-
-        .player-token {
-            width: 16px;
-            height: 16px;
             border-radius: 50%;
-            border: 2px solid #ffffff;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
-        .p1-token { background: var(--p1-color); box-shadow: 0 0 10px var(--p1-glow); }
-        .p2-token { background: var(--p2-color); box-shadow: 0 0 10px var(--p2-glow); }
+        /* Face 1 */
+        .face-1 { transform: rotateY(0deg) translateZ(26px); }
+        .face-1 .dot { grid-area: center; }
 
-        /* OWNER MARKER */
-        .owner-badge {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            box-shadow: 0 0 6px currentColor;
-        }
-
-        /* CONTROLS PANEL */
-        .controls {
-            flex: 1;
-            min-width: 300px;
-            max-width: 380px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .players-wrapper {
-            display: flex;
-            gap: 12px;
-        }
-
-        .player-card {
-            flex: 1;
-            padding: 16px;
-            border-radius: 20px;
-            background: rgba(30, 41, 59, 0.5);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .player-card.active.p1 {
-            border-color: var(--p1-color);
-            background: rgba(255, 71, 87, 0.1);
-            box-shadow: 0 0 20px var(--p1-glow);
-        }
-
-        .player-card.active.p2 {
-            border-color: var(--p2-color);
-            background: rgba(46, 213, 115, 0.1);
-            box-shadow: 0 0 20px var(--p2-glow);
-        }
-
-        .player-card h3 {
-            font-size: 14px;
-            color: var(--text-sub);
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .player-card .money {
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .player-card .location {
-            font-size: 11px;
-            color: var(--accent);
-            margin-top: 4px;
-        }
-
-        .action-area {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            text-align: center;
-        }
-
-        .action-area p {
-            font-size: 14px;
-            color: #e2e8f0;
-            margin-bottom: 16px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #38bdf8, #2563eb);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
-        }
-
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        #property-actions {
-            display: none;
-            gap: 10px;
-        }
-
-        .btn-buy {
-            background: linear-gradient(135deg, #2ed573, #10b981);
-            box-shadow: 0 4px 12px rgba(46, 213, 115, 0.3);
-        }
-
-        .btn-pass {
-            background: linear-gradient(135deg, #64748b, #475569);
-            box-shadow: none;
-        }
-
-        .btn-reset {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-sub);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .btn-reset:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .log-box {
-            height: 160px;
-            overflow-y: auto;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 14px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-family: monospace;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            flex-direction: column-reverse;
-        }
-
-        .log-entry {
-            margin-bottom: 6px;
-            color: var(--text-sub);
-            line-height: 1.4;
-        }
-
-        .log-entry:first-child {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        /* SPECIAL TILES STYLES */
-        .type-go { background: rgba(34, 197, 94, 0.15); }
-        .type-jail { background: rgba(239, 68, 68, 0.15); }
-        .type-parking { background: rgba(234, 179, 8, 0.15); }
-        .type-gotojail { background: rgba(168, 85, 247, 0.15); }
-        .type-chance { background: rgba(249, 115, 22, 0.15); }
-
-        @media (max-width: 640px) {
-            .board { width: 100%; height: auto; aspect-ratio: 1/1; }
-            .game-container { padding: 16px; }
-            .logo-img { width: 60px; height: 60px; }
-            .logo-text { font-size: 18px; }
-            .bottom-left-logos { bottom: 6px; left: 6px; }
-            .small-logo { width: 22px; height: 22px; }
-        }
+        /* Face 2 */
+        .face-2 { transform: rotateY(180deg) translateZ(26px); }
+        /* Face 3 */
+        .face-3 { transform: rotateY(-90deg) translateZ(26px); }
+        /* Face 4 */
+        .face-4 { transform: rotateY(90deg) translateZ(26px); }
+        /* Face 5 */
+        .face-5 { transform: rotateX(-90deg) translateZ(26px); }
+        /* Face 6 */
+        .face-6 { transform: rotateX(90deg) translateZ(26px); }
     </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6">
 
-<!-- OVERLAY PILIHAN MODE PERMAINAN -->
-<div class="mode-overlay" id="mode-overlay">
-    <div class="mode-card">
-        <div class="mode-title">Pilih Mode Permainan</div>
-        <div class="mode-subtitle">Silakan pilih lawan bertanding Anda</div>
-        <div class="mode-buttons">
-            <button class="btn-mode" onclick="startGame('pvp')">
-                <span>👥</span> 1 vs 1 (Pemain vs Pemain)
-            </button>
-            <button class="btn-mode" onclick="startGame('ai')">
-                <span>🤖</span> 1 vs AI (Pemain vs Bot)
-            </button>
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen" class="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-emerald-600 flex items-center justify-center shadow-lg text-3xl">
+            🎲
         </div>
-    </div>
-</div>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide">MONOPOLI NUSANTARA</h1>
+        <p class="text-xs text-slate-400 mt-1 mb-6">Taipan Properti Indonesia dengan Mode Manusia vs AI Bot & Multiplayer</p>
 
-<div class="game-container">
-    <!-- BOARD -->
-    <div class="board" id="board">
-        <div class="center-area">
-            <div class="center-top">
-                <!-- LOGO UTAMA DI TENGAH -->
-                <img class="logo-img" 
-                     src="images/br.png" 
-                     alt="Logo Monopoli" 
-                     title="Logo Mini Monopoli"
-                     onerror="this.src='https://via.placeholder.com/80/1e293b/38bdf8?text=LOGO'">
-                <div class="logo-text">MONOPOLI</div>
-                <div class="logo-sub">★ edisi mini ★</div>
-                <div id="dice-display">⚀</div>
-            </div>
-
-            <!-- 4 LOGO DI KIRI BAWAH CENTER AREA -->
-            <div class="bottom-left-logos" title="Sponsor & Mitra Resmi">
-                <img class="small-logo" src="images/logo2.jpg" alt="Logo 1" onerror="this.src='https://via.placeholder.com/28/38bdf8/ffffff?text=L1'">
-                <img class="small-logo" src="images/logo1.jpg" alt="Logo 2" onerror="this.src='https://via.placeholder.com/28/2ed573/ffffff?text=L2'">
-                <img class="small-logo" src="images/3.jpg" alt="Logo 3" onerror="this.src='https://via.placeholder.com/28/ff4757/ffffff?text=L3'">
-                <img class="small-logo" src="images/IMG-20260728-WA0006.jpg" alt="Logo 4" onerror="this.src='https://via.placeholder.com/28/eab308/ffffff?text=L4'">
+        <div class="space-y-3 text-left mb-6">
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Pilih Mode Permainan</label>
+            <div id="mode-selector" class="space-y-2">
+                <label class="flex items-center justify-between p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/40 cursor-pointer transition">
+                    <div>
+                        <div class="font-bold text-sm text-white">1 Manusia vs 1 Bot AI</div>
+                        <div class="text-[11px] text-slate-400">Duel seru melawan BOT</div>
+                    </div>
+                    <input type="radio" name="gameMode" value="pvp_ai" checked class="accent-emerald-500">
+                </label>
+                <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-700 bg-slate-800/50 cursor-pointer hover:border-slate-600 transition">
+                    <div>
+                        <div class="font-bold text-sm text-white">2 Pemain Manusia (Lokal)</div>
+                        <div class="text-[11px] text-slate-400">Main bareng teman bergantian di 1 perangkat</div>
+                    </div>
+                    <input type="radio" name="gameMode" value="pvp_2p" class="accent-emerald-500">
+                </label>
+                <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-700 bg-slate-800/50 cursor-pointer hover:border-slate-600 transition">
+                    <div>
+                        <div class="font-bold text-sm text-white">1 Manusia vs 2 Bot AI</div>
+                        <div class="text-[11px] text-slate-400">Persaingan sengit melawan BOT</div>
+                    </div>
+                    <input type="radio" name="gameMode" value="pvp_3ai" class="accent-emerald-500">
+                </label>
             </div>
         </div>
+
+        <button onclick="startGame()" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl transition transform active:scale-95">
+            Mulai Petualangan Monopoli 🚀
+        </button>
     </div>
 
-    <!-- CONTROLS -->
-    <div class="controls">
-        <div class="players-wrapper">
-            <div class="player-card p1 active" id="card-p1">
-                <h3 id="name-p1">🔴 Pemain 1</h3>
-                <div class="money">Rp <span id="money-p1">1500</span></div>
-                <div class="location">📍 <span id="pos-p1">GO</span></div>
-            </div>
-
-            <div class="player-card p2" id="card-p2">
-                <h3 id="name-p2">🔵 Pemain 2</h3>
-                <div class="money">Rp <span id="money-p2">1500</span></div>
-                <div class="location">📍 <span id="pos-p2">GO</span></div>
-            </div>
-        </div>
-
-        <div class="action-area">
-            <p id="message-text">Giliran Pemain 1 · lempar dadu!</p>
-            <button id="btn-roll" class="btn" onclick="game.rollDice()">🎲 LEMPAR DADU</button>
-            <div id="property-actions">
-                <button class="btn btn-buy" onclick="game.buyProperty()">💰 BELI</button>
-                <button class="btn btn-pass" onclick="game.endTurn()">⏭️ LEWATI</button>
-            </div>
-            <button class="btn-reset" onclick="location.reload()">🔄 Ganti Mode / Reset Game</button>
-        </div>
-
-        <div class="log-box" id="game-log">
-            <div class="log-entry">🚀 Selamat datang di Mini Monopoli Modern!</div>
-        </div>
-    </div>
-</div>
-
-<script>
-const SPACES_DATA = [
-    { id: 0, name: "START / GO", type: "go", price: 0 },
-    { id: 1, name: "Jakarta", type: "prop", price: 100, rent: 30, color: "#ef4444" },
-    { id: 2, name: "Kesempatan", type: "chance", price: 0 },
-    { id: 3, name: "Bandung", type: "prop", price: 120, rent: 35, color: "#ef4444" },
-    { id: 4, name: "PENJARA", type: "jail", price: 0 },
-    { id: 5, name: "Surabaya", type: "prop", price: 150, rent: 45, color: "#3b82f6" },
-    { id: 6, name: "Pajak Listrik", type: "tax", price: 0, tax: 80 },
-    { id: 7, name: "Medan", type: "prop", price: 180, rent: 55, color: "#3b82f6" },
-    { id: 8, name: "PARKIR BEBAS", type: "parking", price: 0 },
-    { id: 9, name: "Bali", type: "prop", price: 220, rent: 70, color: "#eab308" },
-    { id: 10, name: "Kesempatan", type: "chance", price: 0 },
-    { id: 11, name: "Makassar", type: "prop", price: 250, rent: 85, color: "#eab308" },
-    { id: 12, name: "MASUK PENJARA", type: "gotojail", price: 0 },
-    { id: 13, name: "Papua", type: "prop", price: 300, rent: 100, color: "#a855f7" },
-    { id: 14, name: "Pajak Mewah", type: "tax", price: 0, tax: 150 },
-    { id: 15, name: "Kalimantan", type: "prop", price: 350, rent: 120, color: "#a855f7" }
-];
-
-const GRID_COORDS = [
-    { r:5, c:5 }, { r:5, c:4 }, { r:5, c:3 }, { r:5, c:2 }, { r:5, c:1 },
-    { r:4, c:1 }, { r:3, c:1 }, { r:2, c:1 },
-    { r:1, c:1 }, { r:1, c:2 }, { r:1, c:3 }, { r:1, c:4 }, { r:1, c:5 },
-    { r:2, c:5 }, { r:3, c:5 }, { r:4, c:5 }
-];
-
-class MonopolyGame {
-    constructor(mode = 'pvp') {
-        this.mode = mode; // 'pvp' atau 'ai'
-        this.players = [
-            { id: 1, name: "Pemain 1", money: 1500, pos: 0, color: "var(--p1-color)", jailed: false, isAI: false },
-            { id: 2, name: mode === 'ai' ? "Bot AI 🤖" : "Pemain 2", money: 1500, pos: 0, color: "var(--p2-color)", jailed: false, isAI: mode === 'ai' }
-        ];
-        this.currentPlayerIdx = 0;
-        this.spaces = JSON.parse(JSON.stringify(SPACES_DATA));
-        this.spaces.forEach(s => s.owner = null);
-
-        // Web Audio Context untuk Efek Suara Dadu
-        this.audioCtx = null;
-
-        this.initBoard();
-        this.updateTokens();
-        this.updateUI();
-    }
-
-    // Fungsi Suara Lempar Dadu (Web Audio API)
-    playDiceSound() {
-        if (!this.audioCtx) {
-            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        const osc = this.audioCtx.createOscillator();
-        const gain = this.audioCtx.createGain();
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(150 + Math.random() * 200, this.audioCtx.currentTime);
+    <!-- GAMEPLAY SCREEN -->
+    <div id="game-screen" class="hidden w-full max-w-7xl flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6">
         
-        gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.05);
+        <!-- BOARD (9x9 Perimeter) -->
+        <div class="relative aspect-square w-full max-w-[620px] bg-emerald-950/30 p-2 sm:p-3 rounded-3xl shadow-2xl border-4 border-amber-900/50 backdrop-blur-md">
+            <div id="board-grid" class="board-grid w-full h-full gap-1 sm:gap-1.5">
+                <!-- Center Area -->
+                <div class="col-start-2 col-end-9 row-start-2 row-end-9 bg-gradient-to-br from-emerald-900/90 to-slate-900 rounded-2xl shadow-inner border-2 border-amber-500/30 flex flex-col items-center justify-center p-4 text-center text-white relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15)_0,transparent_70%)] pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col items-center space-y-2">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-widest uppercase">
+                            <span>🇮🇩</span> Nusantara Olympus
+                        </div>
+                        <h2 class="text-xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500">
+                            MONOPOLI NUSANTARA
+                        </h2>
+                        <p class="text-xs text-emerald-200/80 max-w-xs font-medium">
+                            Kuasai kota-kota ikonis Indonesia, bangun hotel mewah, dan jadilah taipan properti sejati!
+                        </p>
+                    </div>
 
-        osc.connect(gain);
-        gain.connect(this.audioCtx.destination);
+                    <!-- 4 Logos di Bawah Kiri -->
+                    <div class="absolute bottom-3 left-3 flex items-center gap-1.5 z-20">
+                        <img src="images/logo1.jpg" alt="Logo 1" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E1%3C/text%3E%3C/svg%3E'">
+                        <img src="images/logo2.jpg" alt="Logo 2" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E2%3C/text%3E%3C/svg%3E'">
+                        <img src="images/logo3.jpg" alt="Logo 3" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E3%3C/text%3E%3C/svg%3E'">
+                        <img src="images/logo4.jpg" alt="Logo 4" class="w-7 h-7 rounded-lg object-cover border border-white/30 shadow-md bg-white/10" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23fff%22%3E%3Ctext x=%224%22 y=%2216%22 font-size=%2212%22%3E4%3C/text%3E%3C/svg%3E'">
+                    </div>
 
-        osc.start();
-        osc.stop(this.audioCtx.currentTime + 0.05);
-    }
+                    <!-- 1 Logo di Bawah Kanan -->
+                    <div class="absolute bottom-3 right-3 z-20">
+                        <div class="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/20 shadow-lg">
+                            <img src="images/br.png" alt="Main Logo" class="w-6 h-6 rounded-md object-cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23ffd700%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2210%22/%3E%3C/svg%3E'">
+                            <span class="text-[10px] font-extrabold text-amber-300 tracking-wider uppercase">SMK N 1 SANDEN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    initBoard() {
-        const board = document.getElementById('board');
-        this.spaces.forEach((space, idx) => {
-            const el = document.createElement('div');
-            el.className = `space type-${space.type}`;
-            el.id = `space-${idx}`;
-            el.style.gridRow = GRID_COORDS[idx].r;
-            el.style.gridColumn = GRID_COORDS[idx].c;
+        <!-- CONTROL PANEL -->
+        <div class="flex flex-col gap-4 w-full max-w-md lg:w-96 bg-white/95 backdrop-blur-md p-5 rounded-3xl shadow-2xl border border-slate-200 text-slate-800">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🎲</span>
+                    <div>
+                        <h2 class="text-base font-black text-slate-800">MONOPOLI NUSANTARA</h2>
+                        <p class="text-xs text-slate-500 font-medium">Ronde <span id="round-num">1</span> • Jackpot: <span id="jackpot-val" class="font-bold text-emerald-600">Rp 1.500.000</span></p>
+                    </div>
+                </div>
+                <button onclick="resetGame()" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition text-xs font-bold">
+                    🔄 Reset
+                </button>
+            </div>
 
-            let headerHtml = space.color ? `<div class="space-header" style="background:${space.color}"></div>` : '';
+            <!-- Players List -->
+            <div id="players-list" class="grid grid-cols-2 gap-2">
+                <!-- Injected via JS -->
+            </div>
 
-            el.innerHTML = `
-                ${headerHtml}
-                <div class="space-name">${space.name}</div>
-                ${space.price > 0 ? `<div class="space-price">Rp ${space.price}</div>` : ''}
-                <div class="tokens-container" id="tokens-${idx}"></div>
-                <div class="owner-badge" id="owner-${idx}"></div>
-            `;
-            board.appendChild(el);
-        });
-    }
+            <!-- Dice & Action Box -->
+            <div class="bg-gradient-to-br from-slate-50 to-emerald-50/50 p-4 rounded-2xl border border-emerald-100 flex flex-col items-center text-center">
+                <div class="text-xs font-bold text-slate-600 mb-2">
+                    Giliran: <span id="current-player-name" class="text-emerald-700 font-extrabold">-</span>
+                </div>
 
-    updateTokens() {
-        this.spaces.forEach((_, idx) => {
-            const container = document.getElementById(`tokens-${idx}`);
-            if (container) container.innerHTML = '';
-        });
+                <div class="flex items-center justify-center gap-4 my-2 bg-white px-6 py-3 rounded-2xl shadow-inner border border-slate-200">
+                    <div class="dice-scene">
+                        <div id="dice-cube-1" class="dice-cube" style="transform: rotateX(0deg) rotateY(0deg);">
+                            <div class="dice-face face-1"><div class="dot"></div></div>
+                            <div class="dice-face face-2"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-3"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-4"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:10px;right:10px;"></div><div class="dot" style="position:absolute;bottom:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-5"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:10px;right:10px;"></div><div class="dot" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div><div class="dot" style="position:absolute;bottom:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-6"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:10px;right:10px;"></div><div class="dot" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);"></div><div class="dot" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);"></div><div class="dot" style="position:absolute;bottom:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                        </div>
+                    </div>
+                    <span class="text-xl font-bold text-slate-300">+</span>
+                    <div class="dice-scene">
+                        <div id="dice-cube-2" class="dice-cube" style="transform: rotateX(0deg) rotateY(0deg);">
+                            <div class="dice-face face-1"><div class="dot"></div></div>
+                            <div class="dice-face face-2"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-3"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-4"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:10px;right:10px;"></div><div class="dot" style="position:absolute;bottom:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-5"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:10px;right:10px;"></div><div class="dot" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div><div class="dot" style="position:absolute;bottom:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                            <div class="dice-face face-6"><div class="dot" style="position:absolute;top:10px;left:10px;"></div><div class="dot" style="position:absolute;top:10px;right:10px;"></div><div class="dot" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);"></div><div class="dot" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);"></div><div class="dot" style="position:absolute;bottom:10px;left:10px;"></div><div class="dot" style="position:absolute;bottom:10px;right:10px;"></div></div>
+                        </div>
+                    </div>
+                </div>
 
-        this.players.forEach((player, idx) => {
-            const container = document.getElementById(`tokens-${player.pos}`);
-            if (container) {
-                const token = document.createElement('div');
-                token.className = `player-token p${idx + 1}-token`;
-                container.appendChild(token);
-            }
-        });
-    }
+                <div id="action-message" class="text-xs font-semibold text-slate-700 my-2">
+                    Silakan lempar dadu untuk memulai langkah!
+                </div>
 
-    rollDice() {
-        const btn = document.getElementById('btn-roll');
-        btn.disabled = true;
-        let count = 0;
-        const diceDisplay = document.getElementById('dice-display');
+                <div id="action-buttons" class="w-full flex gap-2 mt-2">
+                    <button id="btn-roll" onclick="rollDice()" class="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-sm shadow-md transition">
+                        🎲 Lempar Dadu
+                    </button>
+                </div>
+            </div>
 
-        const interval = setInterval(() => {
-            const temp = Math.floor(Math.random() * 6) + 1;
-            diceDisplay.innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][temp - 1];
-            
-            this.playDiceSound();
-            
-            count++;
+            <!-- Game Logs -->
+            <div id="game-logs" class="bg-slate-900 text-slate-300 p-3 rounded-2xl h-32 overflow-y-auto font-mono text-[11px] space-y-1 shadow-inner border border-slate-800">
+                <div class="text-emerald-400">> Permainan siap dimulai.</div>
+            </div>
+        </div>
 
-            if (count > 10) {
-                clearInterval(interval);
-                const finalDice = Math.floor(Math.random() * 6) + 1;
-                diceDisplay.innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][finalDice - 1];
-                this.finalizeMove(finalDice);
-            }
-        }, 60);
-    }
+    </div>
 
-    finalizeMove(dice) {
-        const player = this.players[this.currentPlayerIdx];
-        this.log(`${player.name} melempar dadu: **${dice}**`);
-
-        if (player.jailed) {
-            if (dice === 6) {
-                player.jailed = false;
-                this.log(`🎉 Dadu 6! ${player.name} bebas dari penjara.`);
-            } else {
-                this.log(`⛓️ ${player.name} gagal melempar dadu 6 dan masih di penjara.`);
-                this.endTurn();
-                return;
-            }
+    <script>
+        // Web Audio Sound Effects Synthesizer
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, duration, gainVal = 0.1) {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
         }
 
-        let newPos = (player.pos + dice) % 16;
-        if (newPos < player.pos && !player.jailed) {
-            player.money += 200;
-            this.log(`🏁 ${player.name} melewati GO! +Rp 200`);
+        const soundManager = {
+            roll: () => {
+                playTone(300, 'triangle', 0.1, 0.15);
+                setTimeout(() => playTone(450, 'triangle', 0.1, 0.15), 80);
+            },
+            buy: () => {
+                playTone(523.25, 'sine', 0.1, 0.2);
+                setTimeout(() => playTone(659.25, 'sine', 0.1, 0.2), 100);
+                setTimeout(() => playTone(783.99, 'sine', 0.2, 0.2), 200);
+            },
+            pay: () => {
+                playTone(300, 'sawtooth', 0.15, 0.15);
+                setTimeout(() => playTone(200, 'sawtooth', 0.2, 0.15), 120);
+            },
+            start: () => {
+                playTone(440, 'sine', 0.1, 0.2);
+                setTimeout(() => playTone(554.37, 'sine', 0.1, 0.2), 120);
+                setTimeout(() => playTone(659.25, 'sine', 0.3, 0.25), 240);
+            }
+        };
+
+        // SPACES DATA (32 spaces on perimeter)
+        const SPACES = [
+            { id: 0, name: "GO (MULAI)", type: "go", icon: "🏁" },
+            { id: 1, name: "Kota Solo", type: "property", price: 600000, rent: 40000, color: "#8B5CF6" },
+            { id: 2, name: "Dana Umum", type: "community", icon: "📦" },
+            { id: 3, name: "Kota Yogyakarta", type: "property", price: 800000, rent: 60000, color: "#8B5CF6" },
+            { id: 4, name: "Pajak PPH", type: "tax", amount: 500000, icon: "💸" },
+            { id: 5, name: "Stasiun Gambir", type: "station", price: 2000000, rent: 250000, icon: "🚆" },
+            { id: 6, name: "Kota Malang", type: "property", price: 1000000, rent: 80000, color: "#06B6D4" },
+            { id: 7, name: "Kota Semarang", type: "property", price: 1200000, rent: 100000, color: "#06B6D4" },
+            { id: 8, name: "PENJARA", type: "jail", icon: "⛓️" },
+            { id: 9, name: "Kota Palembang", type: "property", price: 1400000, rent: 120000, color: "#EC4899" },
+            { id: 10, name: "PLN (Listrik)", type: "utility", price: 1500000, rent: 100000, icon: "⚡" },
+            { id: 11, name: "Kota Medan", type: "property", price: 1600000, rent: 140000, color: "#EC4899" },
+            { id: 12, name: "Kesempatan", type: "chance", icon: "❓" },
+            { id: 13, name: "Bandara Soetta", type: "station", price: 2000000, rent: 250000, icon: "✈️" },
+            { id: 14, name: "Kota Bandung", type: "property", price: 1800000, rent: 160000, color: "#F97316" },
+            { id: 15, name: "Kota Surabaya", type: "property", price: 2000000, rent: 180000, color: "#F97316" },
+            { id: 16, name: "PARKIR BEBAS", type: "parking", icon: "🅿️" },
+            { id: 17, name: "Kota Makassar", type: "property", price: 2200000, rent: 200000, color: "#EF4444" },
+            { id: 18, name: "Dana Umum", type: "community", icon: "📦" },
+            { id: 19, name: "Kota Balikpapan", type: "property", price: 2400000, rent: 220000, color: "#EF4444" },
+            { id: 20, name: "Pelabuhan Priok", type: "station", price: 2000000, rent: 250000, icon: "🚢" },
+            { id: 21, name: "Pulau Lombok", type: "property", price: 2600000, rent: 240000, color: "#EAB308" },
+            { id: 22, name: "PDAM (Air)", type: "utility", price: 1500000, rent: 100000, icon: "💧" },
+            { id: 23, name: "Pulau Bali", type: "property", price: 2800000, rent: 260000, color: "#EAB308" },
+            { id: 24, name: "MASUK PENJARA", type: "gotojail", icon: "👮‍♂️" },
+            { id: 25, name: "Kota Batam", type: "property", price: 3000000, rent: 280000, color: "#10B981" },
+            { id: 26, name: "Ibukota Nusantara", type: "property", price: 3200000, rent: 300000, color: "#10B981" },
+            { id: 27, name: "Kesempatan", type: "chance", icon: "❓" },
+            { id: 28, name: "Kereta Cepat", type: "station", price: 2000000, rent: 250000, icon: "🚅" },
+            { id: 29, name: "SCBD Jakarta", type: "property", price: 3600000, rent: 350000, color: "#2563EB" },
+            { id: 30, name: "Pajak Mewah", type: "tax", amount: 1000000, icon: "💎" },
+            { id: 31, name: "Bundaran HI", type: "property", price: 4000000, rent: 500000, color: "#2563EB" }
+        ];
+
+        // Coordinate mapping for 9x9 perimeter
+        const COORDS = {
+            0:{r:9,c:9}, 1:{r:9,c:8}, 2:{r:9,c:7}, 3:{r:9,c:6}, 4:{r:9,c:5}, 5:{r:9,c:4}, 6:{r:9,c:3}, 7:{r:9,c:2}, 8:{r:9,c:1},
+            9:{r:8,c:1}, 10:{r:7,c:1}, 11:{r:6,c:1}, 12:{r:5,c:1}, 13:{r:4,c:1}, 14:{r:3,c:1}, 15:{r:2,c:1}, 16:{r:1,c:1},
+            17:{r:1,c:2}, 18:{r:1,c:3}, 19:{r:1,c:4}, 20:{r:1,c:5}, 21:{r:1,c:6}, 22:{r:1,c:7}, 23:{r:1,c:8}, 24:{r:1,c:9},
+            25:{r:2,c:9}, 26:{r:3,c:9}, 27:{r:4,c:9}, 28:{r:5,c:9}, 29:{r:6,c:9}, 30:{r:7,c:9}, 31:{r:8,c:9}
+        };
+
+        let gameState = {
+            players: [],
+            currentPlayerIdx: 0,
+            round: 1,
+            jackpot: 1500000,
+            hasRolled: false,
+            isRolling: false
+        };
+
+        function startGame() {
+            soundManager.start();
+            const mode = document.querySelector('input[name="gameMode"]:checked').value;
+            let configs = [];
+            if (mode === "pvp_ai") {
+                configs = [{ name: "Pemain 1", isAi: false }, { name: "BOT", isAi: true }];
+            } else if (mode === "pvp_2p") {
+                configs = [{ name: "Pemain 1", isAi: false }, { name: "Pemain 2", isAi: false }];
+            } else if (mode === "pvp_3ai") {
+                configs = [{ name: "Pemain 1", isAi: false }, { name: "BOT 1", isAi: true }, { name: "BOT 2", isAi: true }];
+            }
+
+            const tokens = ["🚗", "🎩", "🛳️", "🦖"];
+            const colors = ["#E11D48", "#2563EB", "#059669", "#D97706"];
+
+            gameState.players = configs.map((c, i) => ({
+                id: i + 1,
+                name: c.name,
+                money: 10000000,
+                position: 0,
+                color: colors[i],
+                token: tokens[i],
+                isAi: c.isAi,
+                isJailed: false
+            }));
+
+            SPACES.forEach(s => { s.owner = null; });
+
+            document.getElementById("setup-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+
+            renderBoard();
+            updateUI();
+            addLog("🎩 Permainan Monopoli Nusantara dimulai!");
+
+            checkAiTurn();
         }
 
-        player.pos = newPos;
-        this.updateTokens();
-        this.handleSpace(player, this.spaces[newPos]);
-        this.updateUI();
-    }
+        function renderBoard() {
+            const grid = document.getElementById("board-grid");
+            // Keep center area element
+            const centerArea = grid.firstElementChild;
+            grid.innerHTML = "";
+            grid.appendChild(centerArea);
 
-    handleSpace(player, space) {
-        const msg = document.getElementById('message-text');
-        const btnRoll = document.getElementById('btn-roll');
-        const propActions = document.getElementById('property-actions');
+            SPACES.forEach((space, idx) => {
+                const pos = COORDS[idx];
+                const el = document.createElement("div");
+                const owner = space.owner ? gameState.players.find(p => p.id === space.owner) : null;
+                
+                el.className = `rounded-xl p-1 flex flex-col justify-between items-center text-center relative overflow-hidden transition-all duration-300 ${space.color ? 'bg-gradient-to-b from-white to-slate-100' : 'bg-gradient-to-b from-slate-100 to-slate-200'} shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] border border-slate-300/80 hover:translate-y-[-2px]`;
+                el.style.gridRow = pos.r;
+                el.style.gridColumn = pos.c;
 
-        btnRoll.style.display = 'none';
-        propActions.style.display = 'none';
+                let headerHtml = "";
+                if (space.color) {
+                    headerHtml = `<div class="w-full h-2.5 rounded-t-lg shadow-inner mb-0.5" style="background:${space.color}"></div>`;
+                } else if (space.icon) {
+                    headerHtml = `<div class="text-sm mt-0.5 filter drop-shadow-sm">${space.icon}</div>`;
+                }
 
-        switch(space.type) {
-            case 'prop':
-                if (space.owner === null) {
-                    if (player.money >= space.price) {
-                        msg.innerText = `${space.name} dijual seharga Rp ${space.price}`;
-                        if (player.isAI) {
-                            // Keputusan Logika AI: Beli jika uang cukup
-                            setTimeout(() => {
-                                this.buyProperty();
-                            }, 1000);
-                        } else {
-                            propActions.style.display = 'flex';
-                        }
-                    } else {
-                        msg.innerText = `${space.name} terlalu mahal untuk dibeli.`;
-                        setTimeout(() => this.endTurn(), 1200);
+                let ownerBadge = "";
+                if (owner) {
+                    ownerBadge = `<div class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full border border-white shadow text-[8px] font-bold text-white flex items-center justify-center" style="background:${owner.color}" title="Dimiliki oleh ${owner.name}">🏠</div>`;
+                }
+
+                el.innerHTML = `
+                    ${headerHtml}
+                    ${ownerBadge}
+                    <div class="text-[9px] font-extrabold text-slate-800 leading-tight line-clamp-2 px-0.5">${space.name}</div>
+                    ${space.price ? `<div class="text-[8px] font-bold text-emerald-700">Rp ${(space.price/1000000).toFixed(1)}M</div>` : ''}
+                    <div id="space-tokens-${idx}" class="absolute inset-x-0 bottom-1 flex items-center justify-center gap-0.5 flex-wrap z-10"></div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function updateUI() {
+            document.getElementById("round-num").innerText = gameState.round;
+            document.getElementById("jackpot-val").innerText = "Rp " + gameState.jackpot.toLocaleString("id-ID");
+
+            const playerList = document.getElementById("players-list");
+            playerList.innerHTML = "";
+            gameState.players.forEach((p, idx) => {
+                const isActive = idx === gameState.currentPlayerIdx;
+                playerList.innerHTML += `
+                    <div class="p-2.5 rounded-xl border ${isActive ? 'bg-slate-900 text-white border-amber-400' : 'bg-slate-50 text-slate-700 border-slate-200'} flex flex-col justify-between">
+                        <div class="flex items-center justify-between text-xs font-bold">
+                            <span>${p.token} ${p.name}</span>
+                            ${p.isAi ? '<span class="text-[9px] px-1 rounded bg-indigo-500/30 text-indigo-200">BOT</span>' : ''}
+                        </div>
+                        <div class="text-xs font-black text-emerald-400 mt-1">Rp ${p.money.toLocaleString("id-ID")}</div>
+                    </div>
+                `;
+            });
+
+            const curr = gameState.players[gameState.currentPlayerIdx];
+            document.getElementById("current-player-name").innerText = `${curr.token} ${curr.name}`;
+
+            // Update board tokens
+            SPACES.forEach((_, idx) => {
+                const tokenContainer = document.getElementById(`space-tokens-${idx}`);
+                if (tokenContainer) tokenContainer.innerHTML = "";
+            });
+
+            gameState.players.forEach(p => {
+                const tokenContainer = document.getElementById(`space-tokens-${p.position}`);
+                if (tokenContainer) {
+                    const span = document.createElement("span");
+                    span.className = "w-4 h-4 rounded-full text-[10px] font-bold text-white flex items-center justify-center shadow";
+                    span.style.background = p.color;
+                    span.innerText = p.token;
+                    tokenContainer.appendChild(span);
+                }
+            });
+        }
+
+        function getDiceRotation(num) {
+            const rx = (num === 5 ? 90 : num === 6 ? -90 : 0) + 360 * 3;
+            const ry = (num === 1 ? 0 : num === 2 ? 180 : num === 3 ? -90 : num === 4 ? 90 : 0) + 360 * 3;
+            return `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        }
+
+        function rollDice() {
+            if (gameState.hasRolled || gameState.isRolling) return;
+            gameState.isRolling = true;
+            soundManager.roll();
+
+            const d1 = Math.floor(Math.random() * 6) + 1;
+            const d2 = Math.floor(Math.random() * 6) + 1;
+
+            document.getElementById("dice-cube-1").style.transform = getDiceRotation(d1);
+            document.getElementById("dice-cube-2").style.transform = getDiceRotation(d2);
+
+            const sum = d1 + d2;
+            const player = gameState.players[gameState.currentPlayerIdx];
+
+            addLog(`${player.name} melempar dadu: ${d1} & ${d2} (Total: ${sum})`);
+
+            setTimeout(() => {
+                let newPos = (player.position + sum) % 32;
+                if (newPos < player.position) {
+                    player.money += 2000000;
+                    addLog(`🏁 ${player.name} melewati GO! Ambil gaji Rp 2.000.000.`);
+                }
+                player.position = newPos;
+                updateUI();
+                handleLanding(player, SPACES[newPos]);
+            }, 1000);
+        }
+
+        function handleLanding(player, space) {
+            addLog(`📍 ${player.name} mendarat di ${space.name}`);
+
+            const actionMsg = document.getElementById("action-message");
+            const actionBtns = document.getElementById("action-buttons");
+
+            if (space.type === "property" || space.type === "station" || space.type === "utility") {
+                if (!space.owner) {
+                    if (player.money >= space.price && !player.isAi) {
+                        actionMsg.innerText = `${space.name} seharga Rp ${space.price.toLocaleString("id-ID")}. Beli?`;
+                        actionBtns.innerHTML = `
+                            <button onclick="buyProperty(${space.id})" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">Beli Aset</button>
+                            <button onclick="endTurn()" class="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs">Lewati</button>
+                        `;
+                        return;
+                    } else if (player.isAi && player.money >= space.price + 1000000) {
+                        player.money -= space.price;
+                        space.owner = player.id;
+                        soundManager.buy();
+                        addLog(`🤖 ${player.name} membeli ${space.name}!`);
                     }
                 } else if (space.owner !== player.id) {
-                    const owner = this.players.find(p => p.id === space.owner);
-                    msg.innerText = `Bayar sewa Rp ${space.rent} ke ${owner.name}`;
-                    this.transferMoney(player, owner, space.rent);
-                    setTimeout(() => this.endTurn(), 1500);
-                } else {
-                    msg.innerText = `Anda berada di properti sendiri.`;
-                    setTimeout(() => this.endTurn(), 1000);
+                    const owner = gameState.players.find(p => p.id === space.owner);
+                    player.money -= space.rent;
+                    owner.money += space.rent;
+                    soundManager.pay();
+                    addLog(`🧾 ${player.name} membayar sewa Rp ${space.rent.toLocaleString("id-ID")} ke ${owner.name}`);
                 }
-                break;
+            } else if (space.type === "tax") {
+                player.money -= space.amount;
+                gameState.jackpot += space.amount;
+                soundManager.pay();
+                addLog(`💸 ${player.name} bayar pajak Rp ${space.amount.toLocaleString("id-ID")}`);
+            } else if (space.type === "parking") {
+                player.money += gameState.jackpot;
+                soundManager.buy();
+                addLog(`🅿️ ${player.name} mengambil Jackpot Rp ${gameState.jackpot.toLocaleString("id-ID")}!`);
+                gameState.jackpot = 1000000;
+            }
 
-            case 'chance':
-                this.triggerChance(player);
-                break;
-
-            case 'tax':
-                msg.innerText = `${space.name}! Bayar Rp ${space.tax}`;
-                player.money -= space.tax;
-                this.checkBankruptcy(player);
-                setTimeout(() => this.endTurn(), 1200);
-                break;
-
-            case 'gotojail':
-                msg.innerText = "🚨 Anda ditangkap dan masuk penjara!";
-                player.pos = 4;
-                player.jailed = true;
-                this.updateTokens();
-                setTimeout(() => this.endTurn(), 1500);
-                break;
-
-            default:
-                msg.innerText = `Singgah di ${space.name}`;
-                setTimeout(() => this.endTurn(), 1000);
+            updateUI();
+            setTimeout(endTurn, 1200);
         }
-    }
 
-    buyProperty() {
-        const player = this.players[this.currentPlayerIdx];
-        const space = this.spaces[player.pos];
-        if (player.money >= space.price && space.owner === null) {
-            player.money -= space.price;
-            space.owner = player.id;
-            
-            const badge = document.getElementById(`owner-${player.pos}`);
-            badge.style.background = player.color;
-
-            this.log(`🏘️ ${player.name} membeli **${space.name}**`);
-            this.endTurn();
+        function buyProperty(spaceId) {
+            const player = gameState.players[gameState.currentPlayerIdx];
+            const space = SPACES[spaceId];
+            if (player.money >= space.price) {
+                player.money -= space.price;
+                space.owner = player.id;
+                soundManager.buy();
+                addLog(`🎉 ${player.name} sukses membeli ${space.name}!`);
+                updateUI();
+                endTurn();
+            }
         }
-    }
 
-    triggerChance(player) {
-        const cards = [
-            { txt: "Dapat bonus investasi! +Rp 150", val: 150 },
-            { txt: "Bayar denda parkir! -Rp 100", val: -100 },
-            { txt: "Maju 2 langkah", move: 2 },
-            { txt: "Mundur 1 langkah", move: -1 }
-        ];
-        const card = cards[Math.floor(Math.random() * cards.length)];
-        this.log(`❓ Kesempatan: ${card.txt}`);
+        function endTurn() {
+            const actionMsg = document.getElementById("action-message");
+            const actionBtns = document.getElementById("action-buttons");
+            actionMsg.innerText = "Giliran berikutnya...";
+            actionBtns.innerHTML = `<button onclick="rollDice()" class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm">🎲 Lempar Dadu</button>`;
 
-        if (card.val) {
-            player.money += card.val;
-            this.checkBankruptcy(player);
+            gameState.currentPlayerIdx = (gameState.currentPlayerIdx + 1) % gameState.players.length;
+            if (gameState.currentPlayerIdx === 0) gameState.round++;
+            gameState.isRolling = false;
+            updateUI();
+
+            checkAiTurn();
         }
-        if (card.move) {
-            player.pos = (player.pos + card.move + 16) % 16;
-            this.updateTokens();
+
+        function checkAiTurn() {
+            const curr = gameState.players[gameState.currentPlayerIdx];
+            if (curr && curr.isAi) {
+                setTimeout(rollDice, 1500);
+            }
         }
-        setTimeout(() => this.endTurn(), 1500);
-    }
 
-    transferMoney(from, to, amount) {
-        from.money -= amount;
-        to.money += amount;
-        this.log(`💸 ${from.name} membayar Rp ${amount} ke ${to.name}`);
-        this.checkBankruptcy(from);
-    }
-
-    checkBankruptcy(player) {
-        if (player.money < 0) {
-            alert(`💥 ${player.name} BANGKRUT! Permainan selesai.`);
-            location.reload();
+        function addLog(text) {
+            const logs = document.getElementById("game-logs");
+            const div = document.createElement("div");
+            div.className = "border-b border-slate-800 pb-1 text-slate-300";
+            div.innerText = `> ${text}`;
+            logs.prepend(div);
         }
-    }
 
-    endTurn() {
-        this.currentPlayerIdx = (this.currentPlayerIdx + 1) % 2;
-        this.updateUI();
-        const nextPlayer = this.players[this.currentPlayerIdx];
-        
-        document.getElementById('message-text').innerText = `Giliran ${nextPlayer.name} · lempar dadu!`;
-        
-        if (nextPlayer.isAI) {
-            document.getElementById('btn-roll').style.display = 'block';
-            document.getElementById('btn-roll').disabled = true;
-            document.getElementById('property-actions').style.display = 'none';
-            
-            // AI Melempar Dadu Secara Otomatis setelah jeda singkat
-            setTimeout(() => {
-                this.rollDice();
-            }, 1000);
-        } else {
-            document.getElementById('btn-roll').style.display = 'block';
-            document.getElementById('btn-roll').disabled = false;
-            document.getElementById('property-actions').style.display = 'none';
+        function resetGame() {
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("setup-screen").classList.remove("hidden");
         }
-    }
-
-    updateUI() {
-        document.getElementById('name-p1').innerText = `🔴 ${this.players[0].name}`;
-        document.getElementById('name-p2').innerText = `🔵 ${this.players[1].name}`;
-
-        document.getElementById('money-p1').innerText = this.players[0].money;
-        document.getElementById('pos-p1').innerText = this.spaces[this.players[0].pos].name;
-        document.getElementById('money-p2').innerText = this.players[1].money;
-        document.getElementById('pos-p2').innerText = this.spaces[this.players[1].pos].name;
-
-        document.getElementById('card-p1').classList.toggle('active', this.currentPlayerIdx === 0);
-        document.getElementById('card-p2').classList.toggle('active', this.currentPlayerIdx === 1);
-    }
-
-    log(msg) {
-        const logBox = document.getElementById('game-log');
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = msg;
-        logBox.insertBefore(entry, logBox.firstChild);
-    }
-}
-
-let game;
-
-function startGame(mode) {
-    document.getElementById('mode-overlay').style.display = 'none';
-    game = new MonopolyGame(mode);
-}
-</script>
+    </script>
 </body>
 </html>
